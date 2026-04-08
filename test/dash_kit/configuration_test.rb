@@ -141,6 +141,17 @@ class DashKit::ConfigurationTest < ActiveSupport::TestCase
     assert_equal "On Deck", widgets[:on_deck][:label]
   end
 
+  test "ordered_visible_widgets excludes unregistered widgets" do
+    config = DashKit::Configuration.new(
+      owner: @account,
+      dashboard_type: "home",
+      widget_order: %w[on_deck stale_widget tasks goals removed_feature],
+      hidden_widgets: []
+    )
+
+    assert_equal %w[on_deck tasks goals], config.ordered_visible_widgets
+  end
+
   test "widget_visible? returns true for non-hidden widgets" do
     config = DashKit::Configuration.new(
       dashboard_type: "home",
