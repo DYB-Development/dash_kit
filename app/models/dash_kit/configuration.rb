@@ -17,7 +17,8 @@ module DashKit
     end
 
     def ordered_visible_widgets
-      widget_order.reject { |w| hidden_widgets.include?(w) }
+      registered = available_widgets.keys.map(&:to_s)
+      widget_order.select { |w| registered.include?(w) }.reject { |w| hidden_widgets.include?(w) }
     end
 
     def available_widgets
