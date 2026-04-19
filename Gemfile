@@ -5,7 +5,7 @@ gemspec
 
 gem "puma"
 gem "sqlite3"
-gem "minitest", "~> 5.0"
+gem "minitest", "~> 6.0"
 gem "rake"
 gem "keystone_ui", github: "tylercschneider/keystone_ui"
 
