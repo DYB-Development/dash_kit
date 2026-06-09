@@ -14,4 +14,12 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert_includes dashboard.errors[:name], "can't be blank"
   end
+
+  test "requires a dashboard_type" do
+    dashboard = DashKit::Dashboard.new(name: "Sales", owner: @account)
+
+    dashboard.valid?
+
+    assert_includes dashboard.errors[:dashboard_type], "can't be blank"
+  end
 end

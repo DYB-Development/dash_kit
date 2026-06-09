@@ -7,5 +7,6 @@ module DashKit
     belongs_to :owner, polymorphic: true
 
     validates :name, presence: true
+    validates :dashboard_type, presence: true
   end
 end
