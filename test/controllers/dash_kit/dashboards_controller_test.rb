@@ -37,4 +37,10 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_includes response.body, "dashboard[name]"
   end
+
+  test "create persists a new dashboard" do
+    assert_difference -> { DashKit::Dashboard.count }, 1 do
+      post dash_kit.dashboards_path, params: { dashboard: { name: "Sales", dashboard_type: "stats" } }
+    end
+  end
 end
