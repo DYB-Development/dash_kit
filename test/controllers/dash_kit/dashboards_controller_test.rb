@@ -49,4 +49,10 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal @account, DashKit::Dashboard.last.owner
   end
+
+  test "create redirects to the dashboards index" do
+    post dash_kit.dashboards_path, params: { dashboard: { name: "Sales", dashboard_type: "stats" } }
+
+    assert_redirected_to dash_kit.dashboards_path
+  end
 end
