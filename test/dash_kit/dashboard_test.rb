@@ -36,4 +36,12 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert_equal "private", dashboard.visibility
   end
+
+  test "rejects an unknown visibility" do
+    dashboard = DashKit::Dashboard.new(name: "Sales", dashboard_type: "stats", owner: @account, visibility: "world")
+
+    dashboard.valid?
+
+    assert_includes dashboard.errors[:visibility], "is not included in the list"
+  end
 end
