@@ -14,5 +14,6 @@ module DashKit
     validates :visibility, inclusion: { in: VISIBILITIES }
 
     scope :for_account, ->(account) { where(account: account) }
+    scope :for_owner, ->(owner) { where(owner: owner) }
   end
 end

@@ -52,4 +52,12 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert_equal [ mine ], DashKit::Dashboard.for_account(@account).to_a
   end
+
+  test "for_owner returns only that owner's dashboards" do
+    other = Account.create!(name: "Other")
+    mine = DashKit::Dashboard.create!(name: "Mine", dashboard_type: "stats", owner: @account)
+    DashKit::Dashboard.create!(name: "Theirs", dashboard_type: "stats", owner: other)
+
+    assert_equal [ mine ], DashKit::Dashboard.for_owner(@account).to_a
+  end
 end
