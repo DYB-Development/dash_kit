@@ -30,4 +30,10 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert second.valid?
   end
+
+  test "defaults visibility to private" do
+    dashboard = DashKit::Dashboard.new
+
+    assert_equal "private", dashboard.visibility
+  end
 end
