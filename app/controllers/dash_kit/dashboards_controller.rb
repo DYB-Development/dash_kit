@@ -6,6 +6,10 @@ module DashKit
       @dashboards = dashboard_scope.all
     end
 
+    def new
+      @dashboard = dashboard_scope.new
+    end
+
     private
 
     def dashboard_scope

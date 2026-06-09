@@ -5,6 +5,17 @@ require "test_helper"
 class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
   setup do
     @account = Account.create!(name: "Test")
+    DashKit.current_owner_method = :current_owner
+    DashKit::ApplicationController.class_eval do
+      def current_owner
+        Account.first
+      end
+    end
+  end
+
+  teardown do
+    DashKit.current_owner_method = nil
+    DashKit::ApplicationController.send(:remove_method, :current_owner)
   end
 
   test "index lists a dashboard by name" do
@@ -19,5 +30,11 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     get dash_kit.dashboards_path
 
     assert_includes response.body, "No dashboards yet."
+  end
+
+  test "new renders a name field" do
+    get dash_kit.new_dashboard_path
+
+    assert_includes response.body, "dashboard[name]"
   end
 end
