@@ -43,4 +43,10 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
       post dash_kit.dashboards_path, params: { dashboard: { name: "Sales", dashboard_type: "stats" } }
     end
   end
+
+  test "create assigns the dashboard to the current owner" do
+    post dash_kit.dashboards_path, params: { dashboard: { name: "Sales", dashboard_type: "stats" } }
+
+    assert_equal @account, DashKit::Dashboard.last.owner
+  end
 end
