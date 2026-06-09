@@ -44,4 +44,12 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert_includes dashboard.errors[:visibility], "is not included in the list"
   end
+
+  test "for_account returns only that account's dashboards" do
+    other = Account.create!(name: "Other")
+    mine = DashKit::Dashboard.create!(name: "Mine", dashboard_type: "stats", owner: @account, account: @account)
+    DashKit::Dashboard.create!(name: "Theirs", dashboard_type: "stats", owner: other, account: other)
+
+    assert_equal [ mine ], DashKit::Dashboard.for_account(@account).to_a
+  end
 end

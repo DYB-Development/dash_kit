@@ -7,9 +7,12 @@ module DashKit
     VISIBILITIES = %w[private account].freeze
 
     belongs_to :owner, polymorphic: true
+    belongs_to :account, optional: true
 
     validates :name, presence: true
     validates :dashboard_type, presence: true
     validates :visibility, inclusion: { in: VISIBILITIES }
+
+    scope :for_account, ->(account) { where(account: account) }
   end
 end
