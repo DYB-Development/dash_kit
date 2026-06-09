@@ -9,4 +9,6 @@ DashKit::Engine.routes.draw do
   end
 
   resources :widgets, only: [ :show ]
+
+  resources :dashboards, only: [ :index ]
 end
