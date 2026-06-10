@@ -6,7 +6,25 @@ module DashKit
       @dashboards = dashboard_scope.all
     end
 
+    def new
+      @dashboard = dashboard_scope.new
+    end
+
+    def create
+      @dashboard = dashboard_scope.new(dashboard_params)
+
+      if @dashboard.save
+        redirect_to dashboards_path, notice: "Dashboard created."
+      else
+        render :new, status: :unprocessable_entity
+      end
+    end
+
     private
+
+    def dashboard_params
+      params.require(:dashboard).permit(:name, :dashboard_type)
+    end
 
     def dashboard_scope
       if DashKit.current_owner_method
