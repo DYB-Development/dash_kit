@@ -87,4 +87,10 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert theirs.reload.active?
   end
+
+  test "duplicate! creates a persisted copy" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
+
+    assert dashboard.duplicate!.persisted?
+  end
 end

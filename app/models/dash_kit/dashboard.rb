@@ -22,5 +22,11 @@ module DashKit
         update!(active: true)
       end
     end
+
+    def duplicate!
+      copy = dup
+      copy.save!
+      copy
+    end
   end
 end
