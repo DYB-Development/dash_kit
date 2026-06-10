@@ -67,4 +67,12 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_entity
   end
+
+  test "select activates the chosen dashboard" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
+
+    post dash_kit.select_dashboard_path(dashboard)
+
+    assert dashboard.reload.active?
+  end
 end

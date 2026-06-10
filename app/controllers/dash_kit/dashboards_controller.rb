@@ -20,6 +20,11 @@ module DashKit
       end
     end
 
+    def select
+      dashboard_scope.find(params[:id]).activate!
+      redirect_to dashboards_path
+    end
+
     private
 
     def dashboard_params
