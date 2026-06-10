@@ -174,4 +174,17 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert_equal %w[tasks on_deck goals], dashboard.reload.widget_order
   end
+
+  test "update_filter merges into filter_state and persists" do
+    register_home_widgets
+    dashboard = DashKit::Dashboard.create!(
+      name: "Home", owner: @account, dashboard_type: "home",
+      widget_order: %w[on_deck tasks goals], hidden_widgets: [],
+      filter_state: { "time_period" => "last_30_days" }
+    )
+
+    dashboard.update_filter(:time_period, "last_7_days")
+
+    assert_equal "last_7_days", dashboard.reload.filter_state["time_period"]
+  end
 end
