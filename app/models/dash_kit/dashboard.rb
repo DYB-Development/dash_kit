@@ -25,6 +25,7 @@ module DashKit
 
     def duplicate!
       copy = dup
+      copy.name = "#{name} (copy)"
       copy.save!
       copy
     end
