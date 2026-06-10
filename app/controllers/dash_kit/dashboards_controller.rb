@@ -70,6 +70,20 @@ module DashKit
       end
     end
 
+    def reorder
+      new_order = params[:widget_order]
+      valid_keys = widget_dashboard.available_widgets.keys.map(&:to_s)
+
+      if new_order.is_a?(Array) && new_order.all? { |k| valid_keys.include?(k) }
+        attrs = { widget_order: new_order }
+        attrs[:hidden_widgets] = params[:hidden_widgets] if params[:hidden_widgets].is_a?(Array)
+        widget_dashboard.update!(attrs)
+        head :ok
+      else
+        head :unprocessable_entity
+      end
+    end
+
     private
 
     def widget_dashboard
