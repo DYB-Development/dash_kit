@@ -117,4 +117,16 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert_not dashboard.duplicate!.active?
   end
+
+  test "available_widgets returns the registered widgets for its type" do
+    DashKit.reset_registry!
+    DashKit.configure do |config|
+      config.register(:home) do |d|
+        d.widget :on_deck, label: "On Deck", partial: "widgets/home/on_deck"
+      end
+    end
+    dashboard = DashKit::Dashboard.new(dashboard_type: "home")
+
+    assert_equal %i[on_deck], dashboard.available_widgets.keys
+  end
 end
