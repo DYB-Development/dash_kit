@@ -2,6 +2,8 @@
 
 module DashKit
   class Dashboard < ApplicationRecord
+    include WidgetManagement
+
     self.table_name = "dash_kit_dashboards"
 
     VISIBILITIES = %w[private account].freeze

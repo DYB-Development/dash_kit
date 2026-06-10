@@ -7,6 +7,17 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
     @account = Account.create!(name: "Test")
   end
 
+  def register_home_widgets
+    DashKit.reset_registry!
+    DashKit.configure do |config|
+      config.register(:home) do |d|
+        d.widget :on_deck, label: "On Deck", partial: "widgets/home/on_deck"
+        d.widget :tasks, label: "Tasks", partial: "widgets/home/tasks"
+        d.widget :goals, label: "Goals", partial: "widgets/home/goals"
+      end
+    end
+  end
+
   test "requires a name" do
     dashboard = DashKit::Dashboard.new(dashboard_type: "home", owner: @account)
 
@@ -116,5 +127,64 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
     dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account, active: true)
 
     assert_not dashboard.duplicate!.active?
+  end
+
+  test "available_widgets returns the registered widgets for its type" do
+    DashKit.reset_registry!
+    DashKit.configure do |config|
+      config.register(:home) do |d|
+        d.widget :on_deck, label: "On Deck", partial: "widgets/home/on_deck"
+      end
+    end
+    dashboard = DashKit::Dashboard.new(dashboard_type: "home")
+
+    assert_equal %i[on_deck], dashboard.available_widgets.keys
+  end
+
+  test "ordered_visible_widgets excludes hidden widgets" do
+    register_home_widgets
+    dashboard = DashKit::Dashboard.new(
+      owner: @account, dashboard_type: "home",
+      widget_order: %w[on_deck tasks goals], hidden_widgets: %w[tasks]
+    )
+
+    assert_equal %w[on_deck goals], dashboard.ordered_visible_widgets
+  end
+
+  test "toggle_widget hides a visible widget and persists" do
+    register_home_widgets
+    dashboard = DashKit::Dashboard.create!(
+      name: "Home", owner: @account, dashboard_type: "home",
+      widget_order: %w[on_deck tasks goals], hidden_widgets: []
+    )
+
+    dashboard.toggle_widget(:tasks)
+
+    assert_includes dashboard.reload.hidden_widgets, "tasks"
+  end
+
+  test "move_widget_up swaps with the previous widget and persists" do
+    register_home_widgets
+    dashboard = DashKit::Dashboard.create!(
+      name: "Home", owner: @account, dashboard_type: "home",
+      widget_order: %w[on_deck tasks goals], hidden_widgets: []
+    )
+
+    dashboard.move_widget_up(:tasks)
+
+    assert_equal %w[tasks on_deck goals], dashboard.reload.widget_order
+  end
+
+  test "update_filter merges into filter_state and persists" do
+    register_home_widgets
+    dashboard = DashKit::Dashboard.create!(
+      name: "Home", owner: @account, dashboard_type: "home",
+      widget_order: %w[on_deck tasks goals], hidden_widgets: [],
+      filter_state: { "time_period" => "last_30_days" }
+    )
+
+    dashboard.update_filter(:time_period, "last_7_days")
+
+    assert_equal "last_7_days", dashboard.reload.filter_state["time_period"]
   end
 end
