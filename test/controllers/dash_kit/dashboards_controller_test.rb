@@ -38,6 +38,22 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, dash_kit.new_dashboard_path
   end
 
+  test "index marks the active dashboard" do
+    DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account, active: true)
+
+    get dash_kit.dashboards_path
+
+    assert_includes response.body, "Active"
+  end
+
+  test "index offers a select action for an inactive dashboard" do
+    inactive = DashKit::Dashboard.create!(name: "Fulfillment", dashboard_type: "stats", owner: @account)
+
+    get dash_kit.dashboards_path
+
+    assert_includes response.body, dash_kit.select_dashboard_path(inactive)
+  end
+
   test "new renders a name field" do
     get dash_kit.new_dashboard_path
 
@@ -66,5 +82,30 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     post dash_kit.dashboards_path, params: { dashboard: { name: "", dashboard_type: "stats" } }
 
     assert_response :unprocessable_entity
+  end
+
+  test "select activates the chosen dashboard" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
+
+    post dash_kit.select_dashboard_path(dashboard)
+
+    assert dashboard.reload.active?
+  end
+
+  test "select redirects to the dashboards index" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
+
+    post dash_kit.select_dashboard_path(dashboard)
+
+    assert_redirected_to dash_kit.dashboards_path
+  end
+
+  test "select does not activate another owner's dashboard" do
+    other_owner = Account.create!(name: "Other")
+    theirs = DashKit::Dashboard.create!(name: "Theirs", dashboard_type: "stats", owner: other_owner)
+
+    post dash_kit.select_dashboard_path(theirs)
+
+    assert_not theirs.reload.active?
   end
 end

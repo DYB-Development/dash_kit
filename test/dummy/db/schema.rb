@@ -30,6 +30,7 @@ ActiveRecord::Schema.define(version: 1) do
     t.json :filter_state, default: {}
     t.string :visibility, null: false, default: "private"
     t.string :role_default_for
+    t.boolean :active, null: false, default: false
     t.timestamps
   end
 

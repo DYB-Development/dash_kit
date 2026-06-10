@@ -15,5 +15,12 @@ module DashKit
 
     scope :for_account, ->(account) { where(account: account) }
     scope :for_owner, ->(owner) { where(owner: owner) }
+
+    def activate!
+      transaction do
+        self.class.for_owner(owner).where.not(id: id).update_all(active: false)
+        update!(active: true)
+      end
+    end
   end
 end
