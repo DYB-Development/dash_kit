@@ -111,4 +111,10 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert_equal "Sales (copy)", dashboard.duplicate!.name
   end
+
+  test "duplicate! leaves the copy inactive when the source is active" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account, active: true)
+
+    assert_not dashboard.duplicate!.active?
+  end
 end
