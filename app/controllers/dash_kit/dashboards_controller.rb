@@ -25,6 +25,11 @@ module DashKit
       redirect_to dashboards_path
     end
 
+    def duplicate
+      dashboard_scope.find(params[:id]).duplicate!
+      redirect_to dashboards_path
+    end
+
     def edit
       @dashboard = dashboard_scope.find(params[:id])
     end

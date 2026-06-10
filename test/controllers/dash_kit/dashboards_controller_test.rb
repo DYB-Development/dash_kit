@@ -62,6 +62,14 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, dash_kit.edit_dashboard_path(dashboard)
   end
 
+  test "index offers a duplicate action for a dashboard" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
+
+    get dash_kit.dashboards_path
+
+    assert_includes response.body, dash_kit.duplicate_dashboard_path(dashboard)
+  end
+
   test "new renders a name field" do
     get dash_kit.new_dashboard_path
 
@@ -156,5 +164,30 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     patch dash_kit.dashboard_path(theirs), params: { dashboard: { name: "Hijacked" } }
 
     assert_equal "Theirs", theirs.reload.name
+  end
+
+  test "duplicate creates a copy of the dashboard" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
+
+    assert_difference -> { DashKit::Dashboard.count }, 1 do
+      post dash_kit.duplicate_dashboard_path(dashboard)
+    end
+  end
+
+  test "duplicate redirects to the dashboards index" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
+
+    post dash_kit.duplicate_dashboard_path(dashboard)
+
+    assert_redirected_to dash_kit.dashboards_path
+  end
+
+  test "duplicate does not copy another owner's dashboard" do
+    other_owner = Account.create!(name: "Other")
+    theirs = DashKit::Dashboard.create!(name: "Theirs", dashboard_type: "stats", owner: other_owner)
+
+    assert_no_difference -> { DashKit::Dashboard.count } do
+      post dash_kit.duplicate_dashboard_path(theirs)
+    end
   end
 end

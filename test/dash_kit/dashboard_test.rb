@@ -87,4 +87,34 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert theirs.reload.active?
   end
+
+  test "duplicate! creates a persisted copy" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
+
+    assert dashboard.duplicate!.persisted?
+  end
+
+  test "duplicate! assigns the copy to the same owner" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
+
+    assert_equal @account, dashboard.duplicate!.owner
+  end
+
+  test "duplicate! copies the source's widget order" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account, widget_order: %w[revenue leads])
+
+    assert_equal %w[revenue leads], dashboard.duplicate!.widget_order
+  end
+
+  test "duplicate! names the copy after the source" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
+
+    assert_equal "Sales (copy)", dashboard.duplicate!.name
+  end
+
+  test "duplicate! leaves the copy inactive when the source is active" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account, active: true)
+
+    assert_not dashboard.duplicate!.active?
+  end
 end

@@ -13,6 +13,7 @@ DashKit::Engine.routes.draw do
   resources :dashboards, only: [ :index, :new, :create, :edit, :update ] do
     member do
       post :select
+      post :duplicate
     end
   end
 end
