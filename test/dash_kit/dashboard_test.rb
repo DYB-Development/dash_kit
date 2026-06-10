@@ -99,4 +99,10 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert_equal @account, dashboard.duplicate!.owner
   end
+
+  test "duplicate! copies the source's widget order" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account, widget_order: %w[revenue leads])
+
+    assert_equal %w[revenue leads], dashboard.duplicate!.widget_order
+  end
 end
