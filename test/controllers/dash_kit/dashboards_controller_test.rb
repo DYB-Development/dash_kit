@@ -124,4 +124,12 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal "Revenue", dashboard.reload.name
   end
+
+  test "update redirects to the dashboards index" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
+
+    patch dash_kit.dashboard_path(dashboard), params: { dashboard: { name: "Revenue" } }
+
+    assert_redirected_to dash_kit.dashboards_path
+  end
 end
