@@ -31,8 +31,12 @@ module DashKit
 
     def update
       @dashboard = dashboard_scope.find(params[:id])
-      @dashboard.update(dashboard_params)
-      redirect_to dashboards_path
+
+      if @dashboard.update(dashboard_params)
+        redirect_to dashboards_path, notice: "Dashboard updated."
+      else
+        render :edit, status: :unprocessable_entity
+      end
     end
 
     private

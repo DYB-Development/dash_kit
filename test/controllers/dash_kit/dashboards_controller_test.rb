@@ -132,4 +132,12 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to dash_kit.dashboards_path
   end
+
+  test "update re-renders the form when invalid" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
+
+    patch dash_kit.dashboard_path(dashboard), params: { dashboard: { name: "" } }
+
+    assert_response :unprocessable_entity
+  end
 end
