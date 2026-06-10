@@ -29,6 +29,12 @@ module DashKit
       @dashboard = dashboard_scope.find(params[:id])
     end
 
+    def update
+      @dashboard = dashboard_scope.find(params[:id])
+      @dashboard.update(dashboard_params)
+      redirect_to dashboards_path
+    end
+
     private
 
     def dashboard_params

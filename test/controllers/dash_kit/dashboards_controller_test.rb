@@ -116,4 +116,12 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_includes response.body, "value=\"Sales\""
   end
+
+  test "update renames the dashboard" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
+
+    patch dash_kit.dashboard_path(dashboard), params: { dashboard: { name: "Revenue" } }
+
+    assert_equal "Revenue", dashboard.reload.name
+  end
 end
