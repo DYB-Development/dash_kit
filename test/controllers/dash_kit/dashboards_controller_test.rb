@@ -46,6 +46,14 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Active"
   end
 
+  test "index offers a select action for an inactive dashboard" do
+    inactive = DashKit::Dashboard.create!(name: "Fulfillment", dashboard_type: "stats", owner: @account)
+
+    get dash_kit.dashboards_path
+
+    assert_includes response.body, dash_kit.select_dashboard_path(inactive)
+  end
+
   test "new renders a name field" do
     get dash_kit.new_dashboard_path
 
