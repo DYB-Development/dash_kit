@@ -49,7 +49,16 @@ module DashKit
       end
     end
 
+    def toggle_widget
+      widget_dashboard.toggle_widget(params[:widget_key])
+      redirect_back fallback_location: main_app.root_path
+    end
+
     private
+
+    def widget_dashboard
+      @widget_dashboard ||= dashboard_scope.find(params[:id])
+    end
 
     def dashboard_params
       params.require(:dashboard).permit(:name, :dashboard_type)

@@ -18,6 +18,24 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     DashKit::ApplicationController.send(:remove_method, :current_owner)
   end
 
+  def register_home_widgets
+    DashKit.reset_registry!
+    DashKit.configure do |config|
+      config.register(:home) do |d|
+        d.widget :on_deck, label: "On Deck", partial: "widgets/home/on_deck"
+        d.widget :tasks, label: "Tasks", partial: "widgets/home/tasks"
+        d.widget :goals, label: "Goals", partial: "widgets/home/goals"
+      end
+    end
+  end
+
+  def home_dashboard
+    DashKit::Dashboard.create!(
+      name: "Home", owner: @account, dashboard_type: "home",
+      widget_order: %w[on_deck tasks goals], hidden_widgets: []
+    )
+  end
+
   test "index lists a dashboard by name" do
     DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
 
@@ -222,5 +240,14 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference -> { DashKit::Dashboard.count } do
       delete dash_kit.dashboard_path(theirs)
     end
+  end
+
+  test "toggle_widget hides a visible widget" do
+    register_home_widgets
+    dashboard = home_dashboard
+
+    post dash_kit.toggle_widget_dashboard_path(dashboard), params: { widget_key: "tasks" }
+
+    assert_includes dashboard.reload.hidden_widgets, "tasks"
   end
 end
