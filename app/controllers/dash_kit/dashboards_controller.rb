@@ -49,7 +49,59 @@ module DashKit
       end
     end
 
+    def toggle_widget
+      widget_dashboard.toggle_widget(params[:widget_key])
+      respond_to do |format|
+        format.turbo_stream { render_settings_modal }
+        format.html { redirect_back fallback_location: main_app.root_path }
+      end
+    end
+
+    def move_widget
+      case params[:direction]
+      when "up"
+        widget_dashboard.move_widget_up(params[:widget_key])
+      when "down"
+        widget_dashboard.move_widget_down(params[:widget_key])
+      end
+      respond_to do |format|
+        format.turbo_stream { render_settings_modal }
+        format.html { redirect_back fallback_location: main_app.root_path }
+      end
+    end
+
+    def reorder
+      new_order = params[:widget_order]
+      valid_keys = widget_dashboard.available_widgets.keys.map(&:to_s)
+
+      if new_order.is_a?(Array) && new_order.all? { |k| valid_keys.include?(k) }
+        attrs = { widget_order: new_order }
+        attrs[:hidden_widgets] = params[:hidden_widgets] if params[:hidden_widgets].is_a?(Array)
+        widget_dashboard.update!(attrs)
+        head :ok
+      else
+        head :unprocessable_entity
+      end
+    end
+
+    def save_filters
+      widget_dashboard.update_filter(params[:filter_key], params[:filter_value])
+      head :ok
+    end
+
     private
+
+    def widget_dashboard
+      @widget_dashboard ||= dashboard_scope.find(params[:id])
+    end
+
+    def render_settings_modal
+      render turbo_stream: turbo_stream.replace(
+        "dashboard-settings-modal",
+        partial: "dash_kit/dashboards/settings_modal",
+        locals: { config: widget_dashboard }
+      )
+    end
 
     def dashboard_params
       params.require(:dashboard).permit(:name, :dashboard_type)

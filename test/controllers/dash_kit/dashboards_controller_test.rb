@@ -18,6 +18,24 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     DashKit::ApplicationController.send(:remove_method, :current_owner)
   end
 
+  def register_home_widgets
+    DashKit.reset_registry!
+    DashKit.configure do |config|
+      config.register(:home) do |d|
+        d.widget :on_deck, label: "On Deck", partial: "widgets/home/on_deck"
+        d.widget :tasks, label: "Tasks", partial: "widgets/home/tasks"
+        d.widget :goals, label: "Goals", partial: "widgets/home/goals"
+      end
+    end
+  end
+
+  def home_dashboard
+    DashKit::Dashboard.create!(
+      name: "Home", owner: @account, dashboard_type: "home",
+      widget_order: %w[on_deck tasks goals], hidden_widgets: []
+    )
+  end
+
   test "index lists a dashboard by name" do
     DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
 
@@ -222,5 +240,72 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference -> { DashKit::Dashboard.count } do
       delete dash_kit.dashboard_path(theirs)
     end
+  end
+
+  test "toggle_widget hides a visible widget" do
+    register_home_widgets
+    dashboard = home_dashboard
+
+    post dash_kit.toggle_widget_dashboard_path(dashboard), params: { widget_key: "tasks" }
+
+    assert_includes dashboard.reload.hidden_widgets, "tasks"
+  end
+
+  test "toggle_widget turbo_stream replaces the settings modal" do
+    register_home_widgets
+    dashboard = home_dashboard
+
+    post dash_kit.toggle_widget_dashboard_path(dashboard), params: { widget_key: "tasks" }, as: :turbo_stream
+
+    assert_includes response.body, "dashboard-settings-modal"
+  end
+
+  test "move_widget up swaps with the previous widget" do
+    register_home_widgets
+    dashboard = home_dashboard
+
+    post dash_kit.move_widget_dashboard_path(dashboard), params: { widget_key: "tasks", direction: "up" }
+
+    assert_equal %w[tasks on_deck goals], dashboard.reload.widget_order
+  end
+
+  test "reorder updates the widget order with valid keys" do
+    register_home_widgets
+    dashboard = home_dashboard
+
+    post dash_kit.reorder_dashboard_path(dashboard), params: { widget_order: %w[goals tasks on_deck] }
+
+    assert_equal %w[goals tasks on_deck], dashboard.reload.widget_order
+  end
+
+  test "reorder rejects invalid keys" do
+    register_home_widgets
+    dashboard = home_dashboard
+
+    post dash_kit.reorder_dashboard_path(dashboard), params: { widget_order: %w[goals fake_widget] }
+
+    assert_response :unprocessable_entity
+  end
+
+  test "save_filters updates the filter state" do
+    register_home_widgets
+    dashboard = home_dashboard
+
+    post dash_kit.save_filters_dashboard_path(dashboard), params: { filter_key: "time_period", filter_value: "last_7_days" }
+
+    assert_equal "last_7_days", dashboard.reload.filter_state["time_period"]
+  end
+
+  test "toggle_widget does not affect another owner's dashboard" do
+    register_home_widgets
+    other_owner = Account.create!(name: "Other")
+    theirs = DashKit::Dashboard.create!(
+      name: "Theirs", owner: other_owner, dashboard_type: "home",
+      widget_order: %w[on_deck tasks goals], hidden_widgets: []
+    )
+
+    post dash_kit.toggle_widget_dashboard_path(theirs), params: { widget_key: "tasks" }
+
+    assert_response :not_found
   end
 end
