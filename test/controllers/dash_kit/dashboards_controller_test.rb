@@ -277,4 +277,13 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal %w[goals tasks on_deck], dashboard.reload.widget_order
   end
+
+  test "reorder rejects invalid keys" do
+    register_home_widgets
+    dashboard = home_dashboard
+
+    post dash_kit.reorder_dashboard_path(dashboard), params: { widget_order: %w[goals fake_widget] }
+
+    assert_response :unprocessable_entity
+  end
 end
