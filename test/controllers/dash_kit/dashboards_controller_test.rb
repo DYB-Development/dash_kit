@@ -295,4 +295,17 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal "last_7_days", dashboard.reload.filter_state["time_period"]
   end
+
+  test "toggle_widget does not affect another owner's dashboard" do
+    register_home_widgets
+    other_owner = Account.create!(name: "Other")
+    theirs = DashKit::Dashboard.create!(
+      name: "Theirs", owner: other_owner, dashboard_type: "home",
+      widget_order: %w[on_deck tasks goals], hidden_widgets: []
+    )
+
+    post dash_kit.toggle_widget_dashboard_path(theirs), params: { widget_key: "tasks" }
+
+    assert_response :not_found
+  end
 end
