@@ -77,4 +77,14 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert_not current.reload.active?
   end
+
+  test "activate! leaves another owner's active dashboard untouched" do
+    other_owner = Account.create!(name: "Other")
+    theirs = DashKit::Dashboard.create!(name: "Theirs", dashboard_type: "stats", owner: other_owner, active: true)
+    mine = DashKit::Dashboard.create!(name: "Mine", dashboard_type: "stats", owner: @account)
+
+    mine.activate!
+
+    assert theirs.reload.active?
+  end
 end
