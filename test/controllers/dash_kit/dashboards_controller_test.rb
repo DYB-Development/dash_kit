@@ -140,4 +140,13 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_entity
   end
+
+  test "update does not rename another owner's dashboard" do
+    other_owner = Account.create!(name: "Other")
+    theirs = DashKit::Dashboard.create!(name: "Theirs", dashboard_type: "stats", owner: other_owner)
+
+    patch dash_kit.dashboard_path(theirs), params: { dashboard: { name: "Hijacked" } }
+
+    assert_equal "Theirs", theirs.reload.name
+  end
 end
