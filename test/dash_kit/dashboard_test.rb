@@ -68,4 +68,13 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert dashboard.active?
   end
+
+  test "activate! deactivates the owner's other dashboards" do
+    current = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account, active: true)
+    other = DashKit::Dashboard.create!(name: "Fulfillment", dashboard_type: "stats", owner: @account)
+
+    other.activate!
+
+    assert_not current.reload.active?
+  end
 end
