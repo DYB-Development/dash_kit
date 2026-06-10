@@ -34,6 +34,11 @@ module DashKit
       @dashboard = dashboard_scope.find(params[:id])
     end
 
+    def destroy
+      dashboard_scope.find(params[:id]).destroy
+      redirect_to dashboards_path
+    end
+
     def update
       @dashboard = dashboard_scope.find(params[:id])
 

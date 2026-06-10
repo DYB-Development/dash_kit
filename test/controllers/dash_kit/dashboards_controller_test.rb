@@ -190,4 +190,12 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
       post dash_kit.duplicate_dashboard_path(theirs)
     end
   end
+
+  test "destroy removes the dashboard" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
+
+    assert_difference -> { DashKit::Dashboard.count }, -1 do
+      delete dash_kit.dashboard_path(dashboard)
+    end
+  end
 end
