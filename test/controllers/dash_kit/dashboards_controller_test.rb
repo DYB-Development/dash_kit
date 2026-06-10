@@ -157,4 +157,12 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal "Theirs", theirs.reload.name
   end
+
+  test "duplicate creates a copy of the dashboard" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
+
+    assert_difference -> { DashKit::Dashboard.count }, 1 do
+      post dash_kit.duplicate_dashboard_path(dashboard)
+    end
+  end
 end
