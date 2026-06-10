@@ -250,4 +250,13 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_includes dashboard.reload.hidden_widgets, "tasks"
   end
+
+  test "toggle_widget turbo_stream replaces the settings modal" do
+    register_home_widgets
+    dashboard = home_dashboard
+
+    post dash_kit.toggle_widget_dashboard_path(dashboard), params: { widget_key: "tasks" }, as: :turbo_stream
+
+    assert_includes response.body, "dashboard-settings-modal"
+  end
 end

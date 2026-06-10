@@ -51,13 +51,24 @@ module DashKit
 
     def toggle_widget
       widget_dashboard.toggle_widget(params[:widget_key])
-      redirect_back fallback_location: main_app.root_path
+      respond_to do |format|
+        format.turbo_stream { render_settings_modal }
+        format.html { redirect_back fallback_location: main_app.root_path }
+      end
     end
 
     private
 
     def widget_dashboard
       @widget_dashboard ||= dashboard_scope.find(params[:id])
+    end
+
+    def render_settings_modal
+      render turbo_stream: turbo_stream.replace(
+        "dashboard-settings-modal",
+        partial: "dash_kit/dashboards/settings_modal",
+        locals: { config: widget_dashboard }
+      )
     end
 
     def dashboard_params
