@@ -286,4 +286,13 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_entity
   end
+
+  test "save_filters updates the filter state" do
+    register_home_widgets
+    dashboard = home_dashboard
+
+    post dash_kit.save_filters_dashboard_path(dashboard), params: { filter_key: "time_period", filter_value: "last_7_days" }
+
+    assert_equal "last_7_days", dashboard.reload.filter_state["time_period"]
+  end
 end

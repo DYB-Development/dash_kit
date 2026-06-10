@@ -84,6 +84,11 @@ module DashKit
       end
     end
 
+    def save_filters
+      widget_dashboard.update_filter(params[:filter_key], params[:filter_value])
+      head :ok
+    end
+
     private
 
     def widget_dashboard
