@@ -57,6 +57,19 @@ module DashKit
       end
     end
 
+    def move_widget
+      case params[:direction]
+      when "up"
+        widget_dashboard.move_widget_up(params[:widget_key])
+      when "down"
+        widget_dashboard.move_widget_down(params[:widget_key])
+      end
+      respond_to do |format|
+        format.turbo_stream { render_settings_modal }
+        format.html { redirect_back fallback_location: main_app.root_path }
+      end
+    end
+
     private
 
     def widget_dashboard

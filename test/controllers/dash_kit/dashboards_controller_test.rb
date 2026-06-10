@@ -259,4 +259,13 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_includes response.body, "dashboard-settings-modal"
   end
+
+  test "move_widget up swaps with the previous widget" do
+    register_home_widgets
+    dashboard = home_dashboard
+
+    post dash_kit.move_widget_dashboard_path(dashboard), params: { widget_key: "tasks", direction: "up" }
+
+    assert_equal %w[tasks on_deck goals], dashboard.reload.widget_order
+  end
 end
