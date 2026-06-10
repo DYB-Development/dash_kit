@@ -93,4 +93,10 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert dashboard.duplicate!.persisted?
   end
+
+  test "duplicate! assigns the copy to the same owner" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
+
+    assert_equal @account, dashboard.duplicate!.owner
+  end
 end
