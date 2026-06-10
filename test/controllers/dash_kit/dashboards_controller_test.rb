@@ -198,4 +198,12 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
       delete dash_kit.dashboard_path(dashboard)
     end
   end
+
+  test "destroy redirects to the dashboards index" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
+
+    delete dash_kit.dashboard_path(dashboard)
+
+    assert_redirected_to dash_kit.dashboards_path
+  end
 end
