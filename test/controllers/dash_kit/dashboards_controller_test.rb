@@ -165,4 +165,12 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
       post dash_kit.duplicate_dashboard_path(dashboard)
     end
   end
+
+  test "duplicate redirects to the dashboards index" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
+
+    post dash_kit.duplicate_dashboard_path(dashboard)
+
+    assert_redirected_to dash_kit.dashboards_path
+  end
 end
