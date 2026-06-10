@@ -70,6 +70,14 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, dash_kit.duplicate_dashboard_path(dashboard)
   end
 
+  test "index offers a delete action for a dashboard" do
+    DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
+
+    get dash_kit.dashboards_path
+
+    assert_includes response.body, "value=\"delete\""
+  end
+
   test "new renders a name field" do
     get dash_kit.new_dashboard_path
 
@@ -188,6 +196,31 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_no_difference -> { DashKit::Dashboard.count } do
       post dash_kit.duplicate_dashboard_path(theirs)
+    end
+  end
+
+  test "destroy removes the dashboard" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
+
+    assert_difference -> { DashKit::Dashboard.count }, -1 do
+      delete dash_kit.dashboard_path(dashboard)
+    end
+  end
+
+  test "destroy redirects to the dashboards index" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
+
+    delete dash_kit.dashboard_path(dashboard)
+
+    assert_redirected_to dash_kit.dashboards_path
+  end
+
+  test "destroy does not delete another owner's dashboard" do
+    other_owner = Account.create!(name: "Other")
+    theirs = DashKit::Dashboard.create!(name: "Theirs", dashboard_type: "stats", owner: other_owner)
+
+    assert_no_difference -> { DashKit::Dashboard.count } do
+      delete dash_kit.dashboard_path(theirs)
     end
   end
 end
