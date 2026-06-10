@@ -83,4 +83,13 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to dash_kit.dashboards_path
   end
+
+  test "select does not activate another owner's dashboard" do
+    other_owner = Account.create!(name: "Other")
+    theirs = DashKit::Dashboard.create!(name: "Theirs", dashboard_type: "stats", owner: other_owner)
+
+    post dash_kit.select_dashboard_path(theirs)
+
+    assert_not theirs.reload.active?
+  end
 end
