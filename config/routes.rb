@@ -10,7 +10,7 @@ DashKit::Engine.routes.draw do
 
   resources :widgets, only: [ :show ]
 
-  resources :dashboards, only: [ :index, :new, :create ] do
+  resources :dashboards, only: [ :index, :new, :create, :edit ] do
     member do
       post :select
     end

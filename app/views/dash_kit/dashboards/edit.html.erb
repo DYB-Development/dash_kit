@@ -1,0 +1,21 @@
+<div class="mx-auto max-w-md px-4 py-6">
+  <h1 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Rename dashboard</h1>
+
+  <%= form_with url: dash_kit.dashboard_path(@dashboard), scope: :dashboard, method: :patch do |form| %>
+    <div class="space-y-4">
+      <div>
+        <%= form.label :name, class: "block text-sm font-medium text-gray-900 dark:text-white mb-1" %>
+        <%= form.text_field :name,
+              value: @dashboard.name,
+              class: "block w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-sm text-gray-900 dark:text-white" %>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <%= form.submit "Save",
+              class: "rounded-md bg-accent-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-accent-500" %>
+        <%= link_to "Cancel", dash_kit.dashboards_path,
+              class: "text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700" %>
+      </div>
+    </div>
+  <% end %>
+</div>

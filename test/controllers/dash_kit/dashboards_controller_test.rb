@@ -108,4 +108,12 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_not theirs.reload.active?
   end
+
+  test "edit renders the dashboard's current name" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
+
+    get dash_kit.edit_dashboard_path(dashboard)
+
+    assert_includes response.body, "value=\"Sales\""
+  end
 end
