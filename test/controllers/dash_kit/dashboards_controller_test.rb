@@ -206,4 +206,13 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to dash_kit.dashboards_path
   end
+
+  test "destroy does not delete another owner's dashboard" do
+    other_owner = Account.create!(name: "Other")
+    theirs = DashKit::Dashboard.create!(name: "Theirs", dashboard_type: "stats", owner: other_owner)
+
+    assert_no_difference -> { DashKit::Dashboard.count } do
+      delete dash_kit.dashboard_path(theirs)
+    end
+  end
 end
