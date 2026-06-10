@@ -162,4 +162,16 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert_includes dashboard.reload.hidden_widgets, "tasks"
   end
+
+  test "move_widget_up swaps with the previous widget and persists" do
+    register_home_widgets
+    dashboard = DashKit::Dashboard.create!(
+      name: "Home", owner: @account, dashboard_type: "home",
+      widget_order: %w[on_deck tasks goals], hidden_widgets: []
+    )
+
+    dashboard.move_widget_up(:tasks)
+
+    assert_equal %w[tasks on_deck goals], dashboard.reload.widget_order
+  end
 end
