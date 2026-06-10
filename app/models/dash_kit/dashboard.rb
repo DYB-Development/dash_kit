@@ -15,5 +15,9 @@ module DashKit
 
     scope :for_account, ->(account) { where(account: account) }
     scope :for_owner, ->(owner) { where(owner: owner) }
+
+    def activate!
+      update!(active: true)
+    end
   end
 end

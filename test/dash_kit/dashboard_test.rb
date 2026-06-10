@@ -60,4 +60,12 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert_equal [ mine ], DashKit::Dashboard.for_owner(@account).to_a
   end
+
+  test "activate! marks the dashboard active" do
+    dashboard = DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
+
+    dashboard.activate!
+
+    assert dashboard.active?
+  end
 end
