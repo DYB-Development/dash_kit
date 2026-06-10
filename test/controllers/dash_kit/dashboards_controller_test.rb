@@ -70,6 +70,14 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, dash_kit.duplicate_dashboard_path(dashboard)
   end
 
+  test "index offers a delete action for a dashboard" do
+    DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account)
+
+    get dash_kit.dashboards_path
+
+    assert_includes response.body, "value=\"delete\""
+  end
+
   test "new renders a name field" do
     get dash_kit.new_dashboard_path
 
