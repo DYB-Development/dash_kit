@@ -32,6 +32,12 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "No dashboards yet."
   end
 
+  test "index links to the new dashboard form" do
+    get dash_kit.dashboards_path
+
+    assert_includes response.body, dash_kit.new_dashboard_path
+  end
+
   test "new renders a name field" do
     get dash_kit.new_dashboard_path
 
