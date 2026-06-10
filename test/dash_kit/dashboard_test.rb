@@ -150,4 +150,16 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert_equal %w[on_deck goals], dashboard.ordered_visible_widgets
   end
+
+  test "toggle_widget hides a visible widget and persists" do
+    register_home_widgets
+    dashboard = DashKit::Dashboard.create!(
+      name: "Home", owner: @account, dashboard_type: "home",
+      widget_order: %w[on_deck tasks goals], hidden_widgets: []
+    )
+
+    dashboard.toggle_widget(:tasks)
+
+    assert_includes dashboard.reload.hidden_widgets, "tasks"
+  end
 end
