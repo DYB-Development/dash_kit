@@ -38,6 +38,14 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, dash_kit.new_dashboard_path
   end
 
+  test "index marks the active dashboard" do
+    DashKit::Dashboard.create!(name: "Sales", dashboard_type: "stats", owner: @account, active: true)
+
+    get dash_kit.dashboards_path
+
+    assert_includes response.body, "Active"
+  end
+
   test "new renders a name field" do
     get dash_kit.new_dashboard_path
 
