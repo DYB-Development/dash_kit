@@ -7,6 +7,17 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
     @account = Account.create!(name: "Test")
   end
 
+  def register_home_widgets
+    DashKit.reset_registry!
+    DashKit.configure do |config|
+      config.register(:home) do |d|
+        d.widget :on_deck, label: "On Deck", partial: "widgets/home/on_deck"
+        d.widget :tasks, label: "Tasks", partial: "widgets/home/tasks"
+        d.widget :goals, label: "Goals", partial: "widgets/home/goals"
+      end
+    end
+  end
+
   test "requires a name" do
     dashboard = DashKit::Dashboard.new(dashboard_type: "home", owner: @account)
 
@@ -128,5 +139,15 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
     dashboard = DashKit::Dashboard.new(dashboard_type: "home")
 
     assert_equal %i[on_deck], dashboard.available_widgets.keys
+  end
+
+  test "ordered_visible_widgets excludes hidden widgets" do
+    register_home_widgets
+    dashboard = DashKit::Dashboard.new(
+      owner: @account, dashboard_type: "home",
+      widget_order: %w[on_deck tasks goals], hidden_widgets: %w[tasks]
+    )
+
+    assert_equal %w[on_deck goals], dashboard.ordered_visible_widgets
   end
 end
