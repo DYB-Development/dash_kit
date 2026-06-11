@@ -5,6 +5,12 @@ GIT
     keystone_ui (0.4.1)
       view_component (>= 2.0)
 
+GIT
+  remote: https://github.com/tylercschneider/the_local.git
+  revision: 2878a5192a587f0caf7b094f95687e8ffa9f6aa2
+  specs:
+    the_local (0.1.0)
+
 PATH
   remote: .
   specs:
@@ -303,6 +309,7 @@ DEPENDENCIES
   rake
   rubocop-rails-omakase
   sqlite3
+  the_local!
 
 BUNDLED WITH
    2.7.1
