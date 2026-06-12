@@ -24,6 +24,14 @@ module DashKit
         route 'mount DashKit::Engine => "/dash_kit"'
       end
 
+      IMPORTMAP_PATH = "config/importmap.rb"
+
+      def pin_sortablejs
+        return unless host_file?(IMPORTMAP_PATH)
+
+        append_to_file IMPORTMAP_PATH, %(pin "sortablejs"\n)
+      end
+
       def print_instructions
         say ""
         say "DashKit installed successfully!", :green
@@ -49,6 +57,12 @@ module DashKit
         say ""
         say "  6. Register your dashboards and widgets in the initializer"
         say ""
+      end
+
+      private
+
+      def host_file?(path)
+        File.exist?(File.expand_path(path, destination_root))
       end
     end
   end
