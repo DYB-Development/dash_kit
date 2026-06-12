@@ -28,6 +28,7 @@ module DashKit
 
       def pin_sortablejs
         return unless host_file?(IMPORTMAP_PATH)
+        return if host_file_includes?(IMPORTMAP_PATH, 'pin "sortablejs"')
 
         append_to_file IMPORTMAP_PATH, %(pin "sortablejs"\n)
       end
@@ -63,6 +64,10 @@ module DashKit
 
       def host_file?(path)
         File.exist?(File.expand_path(path, destination_root))
+      end
+
+      def host_file_includes?(path, snippet)
+        File.read(File.expand_path(path, destination_root)).include?(snippet)
       end
     end
   end
