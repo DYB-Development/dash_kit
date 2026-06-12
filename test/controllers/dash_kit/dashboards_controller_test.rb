@@ -260,6 +260,15 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "dashboard-settings-modal"
   end
 
+  test "settings modal uses the keystone modal backdrop target" do
+    register_home_widgets
+    dashboard = home_dashboard
+
+    post dash_kit.toggle_widget_dashboard_path(dashboard), params: { widget_key: "tasks" }, as: :turbo_stream
+
+    assert_includes response.body, %(data-modal-target="backdrop")
+  end
+
   test "move_widget up swaps with the previous widget" do
     register_home_widgets
     dashboard = home_dashboard
