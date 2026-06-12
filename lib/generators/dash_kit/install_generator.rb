@@ -36,6 +36,7 @@ module DashKit
 
       def register_dash_kit_controllers
         return unless host_file?(STIMULUS_INDEX_PATH)
+        return if host_file_includes?(STIMULUS_INDEX_PATH, "registerDashKitControllers")
 
         append_to_file STIMULUS_INDEX_PATH, <<~JS
 

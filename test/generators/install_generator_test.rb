@@ -74,4 +74,19 @@ class DashKit::Generators::InstallGeneratorTest < Rails::Generators::TestCase
       assert_match(/registerDashKitControllers\(application\)/, content)
     end
   end
+
+  test "does not duplicate the controller registration when already present" do
+    index = File.join(destination_root, "app", "javascript", "controllers", "index.js")
+    FileUtils.mkdir_p(File.dirname(index))
+    File.write(index, <<~JS)
+      import { application } from "controllers/application"
+      import { registerControllers as registerDashKitControllers } from "dash_kit/index"
+
+      registerDashKitControllers(application)
+    JS
+
+    run_generator
+
+    assert_equal 1, File.read(index).scan(/registerDashKitControllers\(application\)/).length
+  end
 end
