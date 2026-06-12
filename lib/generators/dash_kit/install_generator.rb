@@ -25,12 +25,23 @@ module DashKit
       end
 
       IMPORTMAP_PATH = "config/importmap.rb"
+      STIMULUS_INDEX_PATH = "app/javascript/controllers/index.js"
 
       def pin_sortablejs
         return unless host_file?(IMPORTMAP_PATH)
         return if host_file_includes?(IMPORTMAP_PATH, 'pin "sortablejs"')
 
         append_to_file IMPORTMAP_PATH, %(pin "sortablejs"\n)
+      end
+
+      def register_dash_kit_controllers
+        return unless host_file?(STIMULUS_INDEX_PATH)
+
+        append_to_file STIMULUS_INDEX_PATH, <<~JS
+
+          import { registerControllers as registerDashKitControllers } from "dash_kit/index"
+          registerDashKitControllers(application)
+        JS
       end
 
       def print_instructions

@@ -62,4 +62,16 @@ class DashKit::Generators::InstallGeneratorTest < Rails::Generators::TestCase
     importmap = File.read(File.join(destination_root, "config", "importmap.rb"))
     assert_equal 1, importmap.scan(/pin "sortablejs"/).length
   end
+
+  test "registers dash_kit stimulus controllers in the index" do
+    index = File.join(destination_root, "app", "javascript", "controllers", "index.js")
+    FileUtils.mkdir_p(File.dirname(index))
+    File.write(index, %(import { application } from "controllers/application"\n))
+
+    run_generator
+
+    assert_file "app/javascript/controllers/index.js" do |content|
+      assert_match(/registerDashKitControllers\(application\)/, content)
+    end
+  end
 end
