@@ -1,5 +1,5 @@
-<div id="dashboard-settings-modal">
-  <dialog class="modal p-0 rounded-lg shadow-xl bg-white dark:bg-zinc-900 backdrop:bg-gray-500/50 max-w-md w-full" data-modal-target="dialog" data-action="click->modal#backdropClick close->modal#handleClose">
+<div id="dashboard-settings-modal" data-modal-target="backdrop" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60" data-action="click->modal#closeOnBackdrop">
+  <div class="rounded-lg shadow-xl bg-white dark:bg-zinc-900 max-w-md w-full mx-4">
     <div class="p-6" data-controller="sortable-list" data-sortable-list-reorder-url-value="<%= dash_kit.reorder_dashboard_path(config) %>">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Dashboard Settings</h3>
@@ -48,5 +48,5 @@
         </button>
       </div>
     </div>
-  </dialog>
+  </div>
 </div>
