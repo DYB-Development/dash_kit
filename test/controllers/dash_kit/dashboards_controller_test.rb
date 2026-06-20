@@ -15,6 +15,7 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
 
   teardown do
     DashKit.current_owner_method = nil
+    DashKit.editable_by = DashKit::OWNER_EQUALITY
     DashKit::ApplicationController.send(:remove_method, :current_owner)
   end
 
@@ -303,6 +304,16 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     post dash_kit.save_filters_dashboard_path(dashboard), params: { filter_key: "time_period", filter_value: "last_7_days" }
 
     assert_equal "last_7_days", dashboard.reload.filter_state["time_period"]
+  end
+
+  test "reorder is forbidden when the viewer cannot edit" do
+    register_home_widgets
+    dashboard = home_dashboard
+    DashKit.editable_by = ->(_dashboard, _viewer) { false }
+
+    post dash_kit.reorder_dashboard_path(dashboard), params: { widget_order: %w[goals tasks on_deck] }
+
+    assert_response :forbidden
   end
 
   test "toggle_widget does not affect another owner's dashboard" do

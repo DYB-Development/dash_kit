@@ -2,6 +2,8 @@
 
 module DashKit
   class DashboardsController < DashKit.parent_controller.constantize
+    before_action :require_editable!, only: %i[toggle_widget move_widget reorder save_filters]
+
     def index
       @dashboards = dashboard_scope.all
     end
@@ -112,6 +114,21 @@ module DashKit
         DashKit::Dashboard.for_owner(send(DashKit.current_owner_method))
       else
         DashKit::Dashboard
+      end
+    end
+
+    def require_editable!
+      viewer = current_viewer
+      return if viewer.nil?
+
+      head :forbidden unless DashKit.editable?(widget_dashboard, viewer)
+    end
+
+    def current_viewer
+      if DashKit.current_viewer_method
+        send(DashKit.current_viewer_method)
+      elsif DashKit.current_owner_method
+        send(DashKit.current_owner_method)
       end
     end
   end
