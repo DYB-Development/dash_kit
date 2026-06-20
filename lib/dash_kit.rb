@@ -6,6 +6,7 @@ module DashKit
 
   mattr_accessor :parent_controller, default: "DashKit::ApplicationController"
   mattr_accessor :current_owner_method, default: nil
+  mattr_accessor :current_viewer_method, default: nil
 
   OWNER_EQUALITY = ->(dashboard, viewer) { dashboard.owner == viewer }
 

@@ -15,6 +15,8 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
 
   teardown do
     DashKit.current_owner_method = nil
+    DashKit.current_viewer_method = nil
+    DashKit.editable_by = DashKit::OWNER_EQUALITY
     DashKit::ApplicationController.send(:remove_method, :current_owner)
   end
 
@@ -303,6 +305,45 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     post dash_kit.save_filters_dashboard_path(dashboard), params: { filter_key: "time_period", filter_value: "last_7_days" }
 
     assert_equal "last_7_days", dashboard.reload.filter_state["time_period"]
+  end
+
+  test "reorder is forbidden when the viewer cannot edit" do
+    register_home_widgets
+    dashboard = home_dashboard
+    DashKit.editable_by = ->(_dashboard, _viewer) { false }
+
+    post dash_kit.reorder_dashboard_path(dashboard), params: { widget_order: %w[goals tasks on_deck] }
+
+    assert_response :forbidden
+  end
+
+  test "writes are not enforced when no viewer is configured" do
+    register_home_widgets
+    dashboard = home_dashboard
+    DashKit.current_owner_method = nil
+    DashKit.editable_by = ->(_dashboard, _viewer) { false }
+
+    post dash_kit.reorder_dashboard_path(dashboard), params: { widget_order: %w[goals tasks on_deck] }
+
+    assert_equal %w[goals tasks on_deck], dashboard.reload.widget_order
+  end
+
+  test "editable? receives the configured viewer rather than the owner" do
+    register_home_widgets
+    dashboard = home_dashboard
+    received = nil
+    DashKit.editable_by = ->(_dashboard, viewer) { received = viewer; true }
+
+    begin
+      DashKit::ApplicationController.class_eval { def current_member_stub; "member-7"; end }
+      DashKit.current_viewer_method = :current_member_stub
+
+      post dash_kit.reorder_dashboard_path(dashboard), params: { widget_order: %w[goals tasks on_deck] }
+
+      assert_equal "member-7", received
+    ensure
+      DashKit::ApplicationController.send(:remove_method, :current_member_stub)
+    end
   end
 
   test "toggle_widget does not affect another owner's dashboard" do
