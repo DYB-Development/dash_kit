@@ -21,6 +21,26 @@ module DashKit
       @config.save!
     end
 
+    teardown do
+      DashKit.current_viewer_method = nil
+      DashKit.viewable_by = DashKit::OWNER_EQUALITY
+      DashKit.editable_by = DashKit::OWNER_EQUALITY
+      DashKit.shareable_by = DashKit::OWNER_EQUALITY
+    end
+
+    def configure_viewer(viewer)
+      controller.define_singleton_method(:dash_kit_test_viewer) { viewer }
+      DashKit.current_viewer_method = :dash_kit_test_viewer
+    end
+
+    test "dash_kit_editable? is true when the current viewer owns the dashboard" do
+      account = Account.create!(name: "Owner")
+      dashboard = DashKit::Dashboard.create!(name: "D", dashboard_type: "test_dashboard", owner: account)
+      configure_viewer(account)
+
+      assert dash_kit_editable?(dashboard)
+    end
+
     test "dash_kit_widget_label returns label from registry" do
       assert_equal "Stats", dash_kit_widget_label(@config, :stats)
     end

@@ -2,6 +2,23 @@
 
 module DashKit
   module DashboardHelper
+    def dash_kit_viewable?(config)
+      DashKit.viewable?(config, dash_kit_current_viewer)
+    end
+
+    def dash_kit_editable?(config)
+      DashKit.editable?(config, dash_kit_current_viewer)
+    end
+
+    def dash_kit_shareable?(config)
+      DashKit.shareable?(config, dash_kit_current_viewer)
+    end
+
+    def dash_kit_current_viewer
+      method = DashKit.current_viewer_method || DashKit.current_owner_method
+      method && controller.send(method)
+    end
+
     def dash_kit_widget_label(config, widget_key)
       config.available_widgets.dig(widget_key.to_sym, :label) || widget_key.to_s.humanize
     end
