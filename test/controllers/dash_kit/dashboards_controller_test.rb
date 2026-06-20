@@ -316,6 +316,17 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
+  test "writes are not enforced when no viewer is configured" do
+    register_home_widgets
+    dashboard = home_dashboard
+    DashKit.current_owner_method = nil
+    DashKit.editable_by = ->(_dashboard, _viewer) { false }
+
+    post dash_kit.reorder_dashboard_path(dashboard), params: { widget_order: %w[goals tasks on_deck] }
+
+    assert_equal %w[goals tasks on_deck], dashboard.reload.widget_order
+  end
+
   test "toggle_widget does not affect another owner's dashboard" do
     register_home_widgets
     other_owner = Account.create!(name: "Other")
