@@ -7,6 +7,24 @@ module DashKit
   mattr_accessor :parent_controller, default: "DashKit::ApplicationController"
   mattr_accessor :current_owner_method, default: nil
 
+  OWNER_EQUALITY = ->(dashboard, viewer) { dashboard.owner == viewer }
+
+  mattr_accessor :viewable_by, default: OWNER_EQUALITY
+  mattr_accessor :editable_by, default: OWNER_EQUALITY
+  mattr_accessor :shareable_by, default: OWNER_EQUALITY
+
+  def self.viewable?(dashboard, viewer)
+    viewable_by.call(dashboard, viewer)
+  end
+
+  def self.editable?(dashboard, viewer)
+    editable_by.call(dashboard, viewer)
+  end
+
+  def self.shareable?(dashboard, viewer)
+    shareable_by.call(dashboard, viewer)
+  end
+
   def self.registry
     @registry ||= WidgetRegistry.new
   end
