@@ -56,6 +56,14 @@ module DashKit
       assert dash_kit_shareable?(dashboard)
     end
 
+    test "dash_kit_viewable? reflects the host viewable predicate" do
+      dashboard = DashKit::Dashboard.create!(name: "D", dashboard_type: "test_dashboard", owner: Account.create!(name: "Owner"))
+      configure_viewer(Account.create!(name: "Other"))
+      DashKit.viewable_by = ->(_dashboard, _viewer) { true }
+
+      assert dash_kit_viewable?(dashboard)
+    end
+
     test "dash_kit_widget_label returns label from registry" do
       assert_equal "Stats", dash_kit_widget_label(@config, :stats)
     end
