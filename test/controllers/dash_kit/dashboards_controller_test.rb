@@ -335,7 +335,7 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     DashKit.editable_by = ->(_dashboard, viewer) { received = viewer; true }
 
     begin
-      DashKit::ApplicationController.class_eval { def current_member_stub = "member-7" }
+      DashKit::ApplicationController.class_eval { def current_member_stub; "member-7"; end }
       DashKit.current_viewer_method = :current_member_stub
 
       post dash_kit.reorder_dashboard_path(dashboard), params: { widget_order: %w[goals tasks on_deck] }
