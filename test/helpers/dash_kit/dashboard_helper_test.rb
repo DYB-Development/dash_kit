@@ -41,6 +41,13 @@ module DashKit
       assert dash_kit_editable?(dashboard)
     end
 
+    test "dash_kit_editable? is false when the viewer does not own the dashboard" do
+      dashboard = DashKit::Dashboard.create!(name: "D", dashboard_type: "test_dashboard", owner: Account.create!(name: "Owner"))
+      configure_viewer(Account.create!(name: "Other"))
+
+      refute dash_kit_editable?(dashboard)
+    end
+
     test "dash_kit_widget_label returns label from registry" do
       assert_equal "Stats", dash_kit_widget_label(@config, :stats)
     end
