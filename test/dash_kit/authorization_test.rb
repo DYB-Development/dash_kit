@@ -29,4 +29,11 @@ class DashKit::AuthorizationTest < ActiveSupport::TestCase
 
     assert DashKit.editable?(dashboard, "editor")
   end
+
+  test "shareable? uses the host-configured predicate" do
+    DashKit.shareable_by = ->(_dashboard, viewer) { viewer == "sharer" }
+    dashboard = FakeDashboard.new("owner-1")
+
+    assert DashKit.shareable?(dashboard, "sharer")
+  end
 end
