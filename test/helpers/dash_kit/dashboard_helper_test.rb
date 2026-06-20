@@ -21,6 +21,49 @@ module DashKit
       @config.save!
     end
 
+    teardown do
+      DashKit.current_viewer_method = nil
+      DashKit.viewable_by = DashKit::OWNER_EQUALITY
+      DashKit.editable_by = DashKit::OWNER_EQUALITY
+      DashKit.shareable_by = DashKit::OWNER_EQUALITY
+    end
+
+    def configure_viewer(viewer)
+      controller.define_singleton_method(:dash_kit_test_viewer) { viewer }
+      DashKit.current_viewer_method = :dash_kit_test_viewer
+    end
+
+    test "dash_kit_editable? is true when the current viewer owns the dashboard" do
+      account = Account.create!(name: "Owner")
+      dashboard = DashKit::Dashboard.create!(name: "D", dashboard_type: "test_dashboard", owner: account)
+      configure_viewer(account)
+
+      assert dash_kit_editable?(dashboard)
+    end
+
+    test "dash_kit_editable? is false when the viewer does not own the dashboard" do
+      dashboard = DashKit::Dashboard.create!(name: "D", dashboard_type: "test_dashboard", owner: Account.create!(name: "Owner"))
+      configure_viewer(Account.create!(name: "Other"))
+
+      refute dash_kit_editable?(dashboard)
+    end
+
+    test "dash_kit_shareable? reflects the host shareable predicate" do
+      dashboard = DashKit::Dashboard.create!(name: "D", dashboard_type: "test_dashboard", owner: Account.create!(name: "Owner"))
+      configure_viewer(Account.create!(name: "Other"))
+      DashKit.shareable_by = ->(_dashboard, _viewer) { true }
+
+      assert dash_kit_shareable?(dashboard)
+    end
+
+    test "dash_kit_viewable? reflects the host viewable predicate" do
+      dashboard = DashKit::Dashboard.create!(name: "D", dashboard_type: "test_dashboard", owner: Account.create!(name: "Owner"))
+      configure_viewer(Account.create!(name: "Other"))
+      DashKit.viewable_by = ->(_dashboard, _viewer) { true }
+
+      assert dash_kit_viewable?(dashboard)
+    end
+
     test "dash_kit_widget_label returns label from registry" do
       assert_equal "Stats", dash_kit_widget_label(@config, :stats)
     end
