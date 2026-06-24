@@ -11,7 +11,7 @@ coupling the UI to any specific data backend.
   host app.
 - A widget registry: dashboard types map to the widgets available on them.
 - A persistence layer for user preferences (which widgets show, in what order,
-  with which filters) via an ActiveRecord `Configuration` model.
+  with which filters) via an ActiveRecord `Dashboard` model.
 - A rendering layer that lazy-loads each widget through a Turbo Frame and
   refreshes on configuration change.
 
@@ -36,19 +36,18 @@ The layers, all under the `DashKit` namespace:
   `register(:type)` block uses a `DashboardBuilder` whose `widget(key, label:,
   partial:, **options)` declares one widget and assigns it a position by
   declaration order.
-- **Configuration** (`app/models/dash_kit/configuration.rb`) — an ActiveRecord
-  model (table `dash_kit_configurations`) persisting `widget_order`,
-  `hidden_widgets`, and `filter_state`. It `belongs_to :owner, polymorphic:
-  true`. `Configuration.for_owner(owner, dashboard_type)` finds or initializes
-  the config, seeding `widget_order` from the registry's default order.
-- **Dashboard** (`app/models/dash_kit/dashboard.rb`) — an optional named,
-  saveable dashboard (table `dash_kit_dashboards`) with `visibility` of
-  `private` or `account`, `activate!`, and `duplicate!`. It also belongs to a
-  polymorphic `owner`.
+- **Dashboard** (`app/models/dash_kit/dashboard.rb`) — the ActiveRecord model
+  (table `dash_kit_dashboards`) persisting per-owner configuration:
+  `widget_order`, `hidden_widgets`, `widget_settings`, and `filter_state`, plus
+  `name`, `dashboard_type`, `visibility` (`private` or `account`),
+  `role_default_for`, and `active`. It `belongs_to :owner, polymorphic: true`
+  and optionally an `account`. Owners may have many named dashboards;
+  `for_owner(owner)` and `for_account(account)` scope them, and `activate!` /
+  `duplicate!` manage the active one.
 - **WidgetManagement** (`app/models/concerns/dash_kit/widget_management.rb`) — a
-  shared concern providing `ordered_visible_widgets`, `available_widgets`,
-  `widget_visible?`, `toggle_widget`, `move_widget_up`, `move_widget_down`, and
-  `update_filter`. Mixed into both `Configuration` and `Dashboard`.
+  concern mixed into `Dashboard` providing `ordered_visible_widgets`,
+  `available_widgets`, `widget_visible?`, `toggle_widget`, `move_widget_up`,
+  `move_widget_down`, and `update_filter`.
 - **DashboardHelper** (`app/helpers/dash_kit/dashboard_helper.rb`) — view
   helpers: `dash_kit_render_widgets(config:)`, `dash_kit_widget_frame`,
   `dash_kit_settings_modal(config:)`, `dash_kit_settings_button_attributes`, and
@@ -56,22 +55,22 @@ The layers, all under the `DashKit` namespace:
 
 ### Data flow
 
-UI events -> Configuration update -> Turbo refresh -> widgets re-render via
+UI events -> dashboard update -> Turbo refresh -> widgets re-render via
 lazy-loaded Turbo Frames. A widget is never rendered inline; it loads through a
-`<turbo-frame loading="lazy">` pointing at the widget's own route.
+`<turbo-frame loading="lazy">` pointing at the widget's own route. The frame
+carries its dashboard's id, so the widget partial is handed the dashboard's
+`filter_state` to render against (DashKit passes the blob; the host interprets
+it).
 
 ### Routes (mounted at `/dash_kit`)
 
 The engine routes live in `config/routes.rb`:
 
-- `POST /configurations/:id/toggle_widget` — show or hide a widget
-- `POST /configurations/:id/move_widget` — reorder a single widget
-- `POST /configurations/:id/reorder` — batch reorder with `hidden_widgets`
-- `POST /configurations/:id/save_filters` — persist filter state
 - `GET  /widgets/:id` — render an individual widget
 - `resources :dashboards` (`index`, `new`, `create`, `edit`, `update`,
-  `destroy`) plus member `select`, `duplicate`, and the same widget actions —
-  for the named-dashboard feature.
+  `destroy`) plus member `select`, `duplicate`, `toggle_widget`, `move_widget`,
+  `reorder`, and `save_filters` — the dashboard CRUD plus the widget
+  visibility/order/filter actions.
 
 ### JavaScript
 
@@ -95,7 +94,7 @@ rails generate dash_kit:install
 rails db:migrate
 ```
 
-The generator creates the migration for `dash_kit_configurations`, the
+The generator creates the migration for `dash_kit_dashboards`, the
 `config/initializers/dash_kit.rb` initializer, and mounts the engine with
 `mount DashKit::Engine => "/dash_kit"`. The following manual steps remain:
 
@@ -103,7 +102,7 @@ The generator creates the migration for `dash_kit_configurations`, the
    e.g. `Account`):
 
    ```ruby
-   has_many :dash_kit_configurations, class_name: "DashKit::Configuration",
+   has_many :dash_kit_dashboards, class_name: "DashKit::Dashboard",
             as: :owner, dependent: :destroy
    ```
 
@@ -138,26 +137,28 @@ The generator creates the migration for `dash_kit_configurations`, the
    - `parent_controller` is the controller DashKit's controllers inherit from,
      giving them the host's authentication and helpers. It defaults to
      `DashKit::ApplicationController`.
-   - `current_owner_method` is the method DashKit calls to scope configurations
+   - `current_owner_method` is the method DashKit calls to scope dashboards
      to the current owner (e.g. `:current_account`). It defaults to `nil` and
      must be set.
 
-5. **Create a dashboard controller and view** that look up the configuration and
+5. **Create a dashboard controller and view** that look up the dashboard and
    render the widgets:
 
    ```ruby
    class DashboardController < ApplicationController
      def show
-       @dashboard_config = DashKit::Configuration.for_owner(current_account, :home)
-       @dashboard_config.save! if @dashboard_config.new_record?
+       @dashboard = DashKit::Dashboard.for_owner(current_account)
+         .find_or_create_by!(dashboard_type: "home", name: "Home") do |dashboard|
+           dashboard.widget_order = DashKit.registry.default_widget_order(:home)
+         end
      end
    end
    ```
 
    ```erb
    <%= dash_kit_settings_button_attributes %>
-   <%= dash_kit_settings_modal(config: @dashboard_config) %>
-   <%= dash_kit_render_widgets(config: @dashboard_config) %>
+   <%= dash_kit_settings_modal(config: @dashboard) %>
+   <%= dash_kit_render_widgets(config: @dashboard) %>
    ```
 
 ### Conventions a consuming app must follow
@@ -169,10 +170,10 @@ The generator creates the migration for `dash_kit_configurations`, the
 - **Supply the data yourself.** A widget's partial is responsible for fetching
   and rendering its own data; DashKit only renders the partial inside a lazy
   Turbo Frame. Keep partials self-contained around the owner DashKit scopes to.
-- **Scope to the current owner.** Always look up configurations through
-  `DashKit::Configuration.for_owner(owner, dashboard_type)` and set
-  `current_owner_method` so DashKit never leaks one owner's dashboard to
-  another. Configuration and Dashboard are polymorphic on `owner`.
+- **Scope to the current owner.** Always look up dashboards through
+  `DashKit::Dashboard.for_owner(owner)` and set `current_owner_method` so
+  DashKit never leaks one owner's dashboard to another. `Dashboard` is
+  polymorphic on `owner`.
 - **Persist preferences through the model, not by hand.** Use the
   `WidgetManagement` methods (`toggle_widget`, `move_widget_up`,
   `move_widget_down`, `update_filter`) or the engine routes; do not write
