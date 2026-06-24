@@ -16,6 +16,10 @@ module DashKit
         migration_template "create_dash_kit_dashboards.rb.tt", "db/migrate/create_dash_kit_dashboards.rb"
       end
 
+      def copy_widget_definitions_migration
+        migration_template "create_dash_kit_widget_definitions.rb.tt", "db/migrate/create_dash_kit_widget_definitions.rb"
+      end
+
       def copy_initializer
         template "dash_kit.rb.tt", "config/initializers/dash_kit.rb"
       end

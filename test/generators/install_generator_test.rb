@@ -29,6 +29,13 @@ class DashKit::Generators::InstallGeneratorTest < Rails::Generators::TestCase
     end
   end
 
+  test "creates widget definitions migration file" do
+    run_generator
+    assert_migration "db/migrate/create_dash_kit_widget_definitions.rb" do |migration|
+      assert_match(/create_table :dash_kit_widget_definitions/, migration)
+    end
+  end
+
   test "creates initializer" do
     run_generator
     assert_file "config/initializers/dash_kit.rb" do |content|

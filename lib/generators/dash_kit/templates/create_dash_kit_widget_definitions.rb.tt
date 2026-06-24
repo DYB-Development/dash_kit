@@ -1,0 +1,12 @@
+class CreateDashKitWidgetDefinitions < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
+  def change
+    create_table :dash_kit_widget_definitions do |t|
+      t.references :dashboard, null: false, foreign_key: { to_table: :dash_kit_dashboards }
+      t.string :source
+      t.string :visualization
+      t.jsonb :options, default: {}
+
+      t.timestamps
+    end
+  end
+end

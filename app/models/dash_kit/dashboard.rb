@@ -11,6 +11,8 @@ module DashKit
     belongs_to :owner, polymorphic: true
     belongs_to :account, optional: true
 
+    has_many :widget_definitions, -> { order(:id) }, dependent: :destroy
+
     validates :name, presence: true
     validates :dashboard_type, presence: true
     validates :visibility, inclusion: { in: VISIBILITIES }
