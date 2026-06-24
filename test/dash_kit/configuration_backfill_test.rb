@@ -14,4 +14,12 @@ class DashKit::ConfigurationBackfillTest < ActiveSupport::TestCase
 
     assert DashKit::Dashboard.for_owner(@account).exists?(dashboard_type: "home")
   end
+
+  test "carries over the widget_order" do
+    DashKit::Configuration.create!(owner: @account, dashboard_type: "home", widget_order: %w[tasks on_deck])
+
+    DashKit::ConfigurationBackfill.run
+
+    assert_equal %w[tasks on_deck], DashKit::Dashboard.for_owner(@account).last.widget_order
+  end
 end

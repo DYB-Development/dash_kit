@@ -7,7 +7,8 @@ module DashKit
         Dashboard.create!(
           owner: config.owner,
           dashboard_type: config.dashboard_type,
-          name: config.dashboard_type.to_s.humanize
+          name: config.dashboard_type.to_s.humanize,
+          widget_order: config.widget_order
         )
       end
     end
