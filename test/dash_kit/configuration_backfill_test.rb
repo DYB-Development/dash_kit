@@ -7,8 +7,14 @@ class DashKit::ConfigurationBackfillTest < ActiveSupport::TestCase
     @account = Account.create!(name: "Test")
   end
 
+  def legacy_config(**attrs)
+    DashKit::ConfigurationBackfill::LegacyConfiguration.create!(
+      owner_type: @account.class.name, owner_id: @account.id, dashboard_type: "home", **attrs
+    )
+  end
+
   test "creates a Dashboard for each Configuration" do
-    DashKit::Configuration.create!(owner: @account, dashboard_type: "home")
+    legacy_config
 
     DashKit::ConfigurationBackfill.run
 
@@ -16,7 +22,7 @@ class DashKit::ConfigurationBackfillTest < ActiveSupport::TestCase
   end
 
   test "carries over the widget_order" do
-    DashKit::Configuration.create!(owner: @account, dashboard_type: "home", widget_order: %w[tasks on_deck])
+    legacy_config(widget_order: %w[tasks on_deck])
 
     DashKit::ConfigurationBackfill.run
 
@@ -24,7 +30,7 @@ class DashKit::ConfigurationBackfillTest < ActiveSupport::TestCase
   end
 
   test "carries over hidden_widgets" do
-    DashKit::Configuration.create!(owner: @account, dashboard_type: "home", hidden_widgets: %w[goals])
+    legacy_config(hidden_widgets: %w[goals])
 
     DashKit::ConfigurationBackfill.run
 
@@ -32,7 +38,7 @@ class DashKit::ConfigurationBackfillTest < ActiveSupport::TestCase
   end
 
   test "carries over filter_state" do
-    DashKit::Configuration.create!(owner: @account, dashboard_type: "home", filter_state: { "preset" => "last_7_days" })
+    legacy_config(filter_state: { "preset" => "last_7_days" })
 
     DashKit::ConfigurationBackfill.run
 
@@ -40,7 +46,7 @@ class DashKit::ConfigurationBackfillTest < ActiveSupport::TestCase
   end
 
   test "carries over widget_settings" do
-    DashKit::Configuration.create!(owner: @account, dashboard_type: "home", widget_settings: { "tasks" => { "limit" => 5 } })
+    legacy_config(widget_settings: { "tasks" => { "limit" => 5 } })
 
     DashKit::ConfigurationBackfill.run
 
@@ -48,7 +54,7 @@ class DashKit::ConfigurationBackfillTest < ActiveSupport::TestCase
   end
 
   test "is idempotent across re-runs" do
-    DashKit::Configuration.create!(owner: @account, dashboard_type: "home")
+    legacy_config
 
     DashKit::ConfigurationBackfill.run
     DashKit::ConfigurationBackfill.run

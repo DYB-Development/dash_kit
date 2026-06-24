@@ -12,7 +12,9 @@ class DashKit::BackfillDashboardsTaskTest < ActiveSupport::TestCase
   end
 
   test "dash_kit:backfill_dashboards backfills Dashboards from Configurations" do
-    DashKit::Configuration.create!(owner: @account, dashboard_type: "home")
+    DashKit::ConfigurationBackfill::LegacyConfiguration.create!(
+      owner_type: @account.class.name, owner_id: @account.id, dashboard_type: "home"
+    )
 
     Rake::Task["dash_kit:backfill_dashboards"].invoke
 
