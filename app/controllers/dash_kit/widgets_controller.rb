@@ -16,8 +16,16 @@ module DashKit
     private
 
     def filter_state
-      dashboard = DashKit::Dashboard.find_by(id: params[:dashboard_id])
+      dashboard = dashboard_scope.find_by(id: params[:dashboard_id])
       dashboard ? dashboard.filter_state : {}
+    end
+
+    def dashboard_scope
+      if DashKit.current_owner_method
+        DashKit::Dashboard.for_owner(send(DashKit.current_owner_method))
+      else
+        DashKit::Dashboard
+      end
     end
 
     def find_widget_definition(key)
