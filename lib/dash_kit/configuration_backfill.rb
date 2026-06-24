@@ -2,10 +2,17 @@
 
 module DashKit
   module ConfigurationBackfill
+    class LegacyConfiguration < ActiveRecord::Base
+      self.table_name = "dash_kit_configurations"
+    end
+
     def self.run
-      Configuration.find_each do |config|
+      return unless LegacyConfiguration.table_exists?
+
+      LegacyConfiguration.find_each do |config|
         Dashboard.find_or_create_by!(
-          owner: config.owner,
+          owner_type: config.owner_type,
+          owner_id: config.owner_id,
           dashboard_type: config.dashboard_type,
           name: config.dashboard_type.to_s.humanize
         ) do |dashboard|
