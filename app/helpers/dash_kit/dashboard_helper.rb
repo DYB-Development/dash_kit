@@ -50,7 +50,8 @@ module DashKit
       form_tag dash_kit.save_filters_dashboard_path(config), method: :post do
         safe_join([
           hidden_field_tag("filter_key", key),
-          select_tag("filter_value", options_for_select(options, config.filter_state[key.to_s]))
+          select_tag("filter_value", options_for_select(options, config.filter_state[key.to_s]),
+            onchange: "this.form.requestSubmit()")
         ])
       end
     end

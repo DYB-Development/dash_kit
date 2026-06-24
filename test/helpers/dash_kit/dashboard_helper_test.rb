@@ -99,6 +99,16 @@ module DashKit
       assert_match(/action="#{Regexp.escape(dash_kit.save_filters_dashboard_path(dashboard))}"/, html)
     end
 
+    test "dash_kit_filter_select auto-submits when the selection changes" do
+      dashboard = DashKit::Dashboard.create!(
+        name: "D", dashboard_type: "test_dashboard", owner: Account.create!(name: "Owner")
+      )
+
+      html = dash_kit_filter_select(config: dashboard, key: "time_period", options: [ [ "Last 7 days", "last_7_days" ] ])
+
+      assert_match(/onchange="this\.form\.requestSubmit\(\)"/, html)
+    end
+
     test "dash_kit_widget_label returns label from registry" do
       assert_equal "Stats", dash_kit_widget_label(@config, :stats)
     end
