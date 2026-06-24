@@ -134,5 +134,13 @@ module DashKit
       assert_match "Stats", html
       assert_match "Chart", html
     end
+
+    test "dash_kit_widget_definition_frame lazily loads the definition path" do
+      definition = @config.widget_definitions.create!(source: "revenue", visualization: "single_value")
+
+      html = dash_kit_widget_definition_frame(definition)
+
+      assert_match dash_kit.widget_definition_path(definition, dashboard_id: @config.id), html
+    end
   end
 end

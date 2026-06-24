@@ -1,5 +1,6 @@
 DashKit::Engine.routes.draw do
   resources :widgets, only: [ :show ]
+  resources :widget_definitions, only: [ :show ]
 
   resources :dashboards, only: [ :index, :new, :create, :edit, :update, :destroy ] do
     member do
