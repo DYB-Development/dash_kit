@@ -12,4 +12,8 @@ class DashKit::RendererRegistryTest < Minitest::Test
 
     assert_equal "renderers/single_value", @registry.renderer_for(:single_value)
   end
+
+  def test_unknown_visualization_returns_nil
+    assert_nil @registry.renderer_for(:nonexistent)
+  end
 end
