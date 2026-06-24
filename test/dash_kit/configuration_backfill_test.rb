@@ -22,4 +22,12 @@ class DashKit::ConfigurationBackfillTest < ActiveSupport::TestCase
 
     assert_equal %w[tasks on_deck], DashKit::Dashboard.for_owner(@account).last.widget_order
   end
+
+  test "carries over hidden_widgets" do
+    DashKit::Configuration.create!(owner: @account, dashboard_type: "home", hidden_widgets: %w[goals])
+
+    DashKit::ConfigurationBackfill.run
+
+    assert_equal %w[goals], DashKit::Dashboard.for_owner(@account).last.hidden_widgets
+  end
 end
