@@ -55,4 +55,12 @@ class DashKit::ConfigurationBackfillTest < ActiveSupport::TestCase
 
     assert_equal 1, DashKit::Dashboard.for_owner(@account).count
   end
+
+  test "is a no-op when the legacy table is absent" do
+    DashKit::ConfigurationBackfill::LegacyConfiguration.table_name = "dash_kit_absent_configs"
+
+    assert_nothing_raised { DashKit::ConfigurationBackfill.run }
+  ensure
+    DashKit::ConfigurationBackfill::LegacyConfiguration.table_name = "dash_kit_configurations"
+  end
 end

@@ -7,6 +7,8 @@ module DashKit
     end
 
     def self.run
+      return unless LegacyConfiguration.table_exists?
+
       LegacyConfiguration.find_each do |config|
         Dashboard.find_or_create_by!(
           owner_type: config.owner_type,
