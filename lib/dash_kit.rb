@@ -1,5 +1,6 @@
 require "dash_kit/version"
 require "dash_kit/widget_registry"
+require "dash_kit/configuration_backfill"
 
 module DashKit
   class Error < StandardError; end
