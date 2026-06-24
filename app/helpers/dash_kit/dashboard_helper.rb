@@ -39,8 +39,22 @@ module DashKit
     end
 
     def dash_kit_widget_frame(widget_key, dashboard_id: nil, &block)
-      src = dash_kit.widget_path(widget_key, dashboard_id: dashboard_id)
-      id = "widget_#{widget_key}"
+      dash_kit_turbo_frame(
+        id: "widget_#{widget_key}",
+        src: dash_kit.widget_path(widget_key, dashboard_id: dashboard_id),
+        &block
+      )
+    end
+
+    def dash_kit_widget_definition_frame(definition, &block)
+      dash_kit_turbo_frame(
+        id: "widget_definition_#{definition.id}",
+        src: dash_kit.widget_definition_path(definition, dashboard_id: definition.dashboard_id),
+        &block
+      )
+    end
+
+    def dash_kit_turbo_frame(id:, src:, &block)
       loading_content = block ? capture(&block) : dash_kit_loading_skeleton
 
       content_tag("turbo-frame", loading_content, id: id, src: src, loading: "lazy", target: "_top", style: "display: block")
