@@ -14,6 +14,10 @@ class DashKit::WidgetDefinitionsControllerTest < ActionDispatch::IntegrationTest
 
   teardown do
     DashKit.reset_renderers!
+    DashKit.current_owner_method = nil
+    if DashKit::ApplicationController.method_defined?(:current_owner)
+      DashKit::ApplicationController.send(:remove_method, :current_owner)
+    end
   end
 
   test "renders a definition through its host renderer with source, options and filter_state" do
@@ -35,5 +39,15 @@ class DashKit::WidgetDefinitionsControllerTest < ActionDispatch::IntegrationTest
     get dash_kit.widget_definition_path(definition)
 
     assert_response :success
+  end
+
+  test "does not expose a definition owned by another owner" do
+    definition = @dashboard.widget_definitions.create!(source: "revenue", visualization: "single_value")
+    DashKit.current_owner_method = :current_owner
+    DashKit::ApplicationController.class_eval { define_method(:current_owner) { Account.create!(name: "Intruder") } }
+
+    get dash_kit.widget_definition_path(definition)
+
+    assert_response :not_found
   end
 end
