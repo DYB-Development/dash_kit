@@ -6,7 +6,10 @@ module DashKit
       definition = definition_scope.find_by(id: params[:id])
       return head :not_found if definition.nil?
 
-      render partial: DashKit.renderer_for(definition.visualization), layout: false, locals: {
+      renderer = DashKit.renderer_for(definition.visualization)
+      return render partial: "dash_kit/widget_definitions/missing_renderer", layout: false if renderer.nil?
+
+      render partial: renderer, layout: false, locals: {
         source: definition.source,
         options: definition.options,
         filter_state: definition.dashboard.filter_state

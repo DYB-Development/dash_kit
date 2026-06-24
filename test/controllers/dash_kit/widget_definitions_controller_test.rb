@@ -28,4 +28,12 @@ class DashKit::WidgetDefinitionsControllerTest < ActionDispatch::IntegrationTest
     assert_match "usd", response.body
     assert_match "last_7_days", response.body
   end
+
+  test "renders a safe fallback for an unregistered visualization" do
+    definition = @dashboard.widget_definitions.create!(source: "revenue", visualization: "unknown_viz")
+
+    get dash_kit.widget_definition_path(definition)
+
+    assert_response :success
+  end
 end
