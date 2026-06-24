@@ -17,8 +17,10 @@ module DashKit
         end
       end
 
-      @config = DashKit::Configuration.for_owner(Account.create!(name: "Test"), :test_dashboard)
-      @config.save!
+      @config = DashKit::Dashboard.create!(
+        name: "Test", dashboard_type: "test_dashboard", owner: Account.create!(name: "Test"),
+        widget_order: %w[stats chart], hidden_widgets: []
+      )
     end
 
     teardown do
