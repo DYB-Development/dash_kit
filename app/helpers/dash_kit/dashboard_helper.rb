@@ -46,6 +46,10 @@ module DashKit
       content_tag("turbo-frame", loading_content, id: id, src: src, loading: "lazy", target: "_top", style: "display: block")
     end
 
+    def dash_kit_filter_select(config:, key:, options:)
+      select_tag "filter_value", options_for_select(options, config.filter_state[key.to_s])
+    end
+
     def dash_kit_settings_modal(config:)
       render partial: "dash_kit/dashboards/settings_modal", locals: { config: config }
     end
