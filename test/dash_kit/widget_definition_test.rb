@@ -31,4 +31,11 @@ class DashKit::WidgetDefinitionTest < ActiveSupport::TestCase
 
     assert_equal({ "color" => "blue" }, definition.reload.options)
   end
+
+  test "returns definitions in a stable order" do
+    first = @dashboard.widget_definitions.create!(source: "a", visualization: "single_value")
+    second = @dashboard.widget_definitions.create!(source: "b", visualization: "single_value")
+
+    assert_equal [ first.id, second.id ], @dashboard.reload.widget_definitions.map(&:id)
+  end
 end
