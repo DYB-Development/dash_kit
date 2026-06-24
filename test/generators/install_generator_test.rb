@@ -19,13 +19,13 @@ class DashKit::Generators::InstallGeneratorTest < Rails::Generators::TestCase
 
   test "creates migration file" do
     run_generator
-    assert_migration "db/migrate/create_dash_kit_configurations.rb" do |migration|
-      assert_match(/create_table :dash_kit_configurations/, migration)
+    assert_migration "db/migrate/create_dash_kit_dashboards.rb" do |migration|
+      assert_match(/create_table :dash_kit_dashboards/, migration)
       assert_match(/t\.references :owner, polymorphic: true/, migration)
       assert_match(/t\.string :dashboard_type/, migration)
       assert_match(/t\.jsonb :widget_order/, migration)
       assert_match(/t\.jsonb :hidden_widgets/, migration)
-      assert_match(/index_dash_kit_configs_on_owner_and_type/, migration)
+      assert_match(/t\.string :visibility/, migration)
     end
   end
 

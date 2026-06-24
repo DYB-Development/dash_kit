@@ -1,0 +1,21 @@
+class CreateDashKitDashboards < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
+  def change
+    create_table :dash_kit_dashboards do |t|
+      t.references :owner, polymorphic: true, null: false
+      t.bigint :account_id
+      t.string :name
+      t.string :dashboard_type, null: false
+      t.jsonb :widget_order, default: []
+      t.jsonb :hidden_widgets, default: []
+      t.jsonb :widget_settings, default: {}
+      t.jsonb :filter_state, default: {}
+      t.string :visibility, null: false, default: "private"
+      t.string :role_default_for
+      t.boolean :active, null: false, default: false
+
+      t.timestamps
+    end
+
+    add_index :dash_kit_dashboards, :account_id
+  end
+end

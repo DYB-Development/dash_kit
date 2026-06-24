@@ -13,7 +13,7 @@ module DashKit
       desc "Install DashKit dashboard engine"
 
       def copy_migration
-        migration_template "create_dash_kit_configurations.rb.tt", "db/migrate/create_dash_kit_configurations.rb"
+        migration_template "create_dash_kit_dashboards.rb.tt", "db/migrate/create_dash_kit_dashboards.rb"
       end
 
       def copy_initializer
