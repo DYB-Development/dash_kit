@@ -30,4 +30,12 @@ class DashKit::ConfigurationBackfillTest < ActiveSupport::TestCase
 
     assert_equal %w[goals], DashKit::Dashboard.for_owner(@account).last.hidden_widgets
   end
+
+  test "carries over filter_state" do
+    DashKit::Configuration.create!(owner: @account, dashboard_type: "home", filter_state: { "preset" => "last_7_days" })
+
+    DashKit::ConfigurationBackfill.run
+
+    assert_equal({ "preset" => "last_7_days" }, DashKit::Dashboard.for_owner(@account).last.filter_state)
+  end
 end
