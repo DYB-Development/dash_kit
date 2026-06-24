@@ -38,4 +38,12 @@ class DashKit::ConfigurationBackfillTest < ActiveSupport::TestCase
 
     assert_equal({ "preset" => "last_7_days" }, DashKit::Dashboard.for_owner(@account).last.filter_state)
   end
+
+  test "carries over widget_settings" do
+    DashKit::Configuration.create!(owner: @account, dashboard_type: "home", widget_settings: { "tasks" => { "limit" => 5 } })
+
+    DashKit::ConfigurationBackfill.run
+
+    assert_equal({ "tasks" => { "limit" => 5 } }, DashKit::Dashboard.for_owner(@account).last.widget_settings)
+  end
 end

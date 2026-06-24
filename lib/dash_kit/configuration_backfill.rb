@@ -10,7 +10,8 @@ module DashKit
           name: config.dashboard_type.to_s.humanize,
           widget_order: config.widget_order,
           hidden_widgets: config.hidden_widgets,
-          filter_state: config.filter_state
+          filter_state: config.filter_state,
+          widget_settings: config.widget_settings
         )
       end
     end
