@@ -64,6 +64,17 @@ module DashKit
       assert dash_kit_viewable?(dashboard)
     end
 
+    test "dash_kit_render_widgets embeds the dashboard id in each widget frame src" do
+      dashboard = DashKit::Dashboard.create!(
+        name: "D", dashboard_type: "test_dashboard", owner: Account.create!(name: "Owner"),
+        widget_order: %w[stats], hidden_widgets: []
+      )
+
+      html = dash_kit_render_widgets(config: dashboard)
+
+      assert_match "dashboard_id=#{dashboard.id}", html
+    end
+
     test "dash_kit_widget_label returns label from registry" do
       assert_equal "Stats", dash_kit_widget_label(@config, :stats)
     end

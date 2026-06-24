@@ -32,14 +32,14 @@ module DashKit
             widget_def = config.available_widgets[widget_key.to_sym]
             next unless widget_def
 
-            dash_kit_widget_frame(widget_key)
+            dash_kit_widget_frame(widget_key, dashboard_id: config.id)
           end
         )
       end
     end
 
-    def dash_kit_widget_frame(widget_key, &block)
-      src = dash_kit.widget_path(widget_key)
+    def dash_kit_widget_frame(widget_key, dashboard_id: nil, &block)
+      src = dash_kit.widget_path(widget_key, dashboard_id: dashboard_id)
       id = "widget_#{widget_key}"
       loading_content = block ? capture(&block) : dash_kit_loading_skeleton
 
