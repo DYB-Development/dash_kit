@@ -36,4 +36,12 @@ ActiveRecord::Schema.define(version: 1) do
 
   add_index :dash_kit_dashboards, [ :owner_type, :owner_id ]
   add_index :dash_kit_dashboards, :account_id
+
+  create_table :dash_kit_widget_definitions, force: true do |t|
+    t.references :dashboard, null: false
+    t.string :source
+    t.string :visualization
+    t.json :options, default: {}
+    t.timestamps
+  end
 end
