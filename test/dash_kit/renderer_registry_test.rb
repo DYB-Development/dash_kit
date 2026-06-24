@@ -17,3 +17,15 @@ class DashKit::RendererRegistryTest < Minitest::Test
     assert_nil @registry.renderer_for(:nonexistent)
   end
 end
+
+class DashKit::RegisterRendererTest < Minitest::Test
+  def setup
+    DashKit.reset_renderers!
+  end
+
+  def test_registers_a_renderer_at_the_module_level
+    DashKit.register_renderer(:chart, partial: "renderers/chart")
+
+    assert_equal "renderers/chart", DashKit.renderer_for(:chart)
+  end
+end

@@ -39,6 +39,22 @@ module DashKit
   def self.reset_registry!
     @registry = WidgetRegistry.new
   end
+
+  def self.renderers
+    @renderers ||= RendererRegistry.new
+  end
+
+  def self.register_renderer(visualization, partial:)
+    renderers.register(visualization, partial: partial)
+  end
+
+  def self.renderer_for(visualization)
+    renderers.renderer_for(visualization)
+  end
+
+  def self.reset_renderers!
+    @renderers = RendererRegistry.new
+  end
 end
 
 require "dash_kit/engine" if defined?(Rails::Engine)
