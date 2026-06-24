@@ -47,15 +47,15 @@ namespace :dash_kit do
       your app (e.g. `app/views/widgets/_revenue.html.erb`) and renders whatever
       content you want.
 
-      ### Configuration Model
+      ### Dashboard Model
 
-      `DashKit::Configuration` stores per-user dashboard preferences:
+      `DashKit::Dashboard` stores per-owner dashboard preferences:
 
       ```ruby
-      # Get or create a configuration for the current user
-      config = DashKit::Configuration.find_or_create_by(
-        owner: current_user,
-        dashboard_type: "main"
+      # Get or create a dashboard for the current owner
+      config = DashKit::Dashboard.for_owner(current_user).find_or_create_by(
+        dashboard_type: "main",
+        name: "Main"
       )
       ```
 
@@ -122,10 +122,10 @@ namespace :dash_kit do
 
       | Method | Path | Purpose |
       |--------|------|---------|
-      | POST | `/configurations/:id/toggle_widget` | Show/hide a widget |
-      | POST | `/configurations/:id/move_widget` | Reorder a single widget |
-      | POST | `/configurations/:id/reorder` | Batch reorder with hidden_widgets |
-      | POST | `/configurations/:id/save_filters` | Persist filter state |
+      | POST | `/dashboards/:id/toggle_widget` | Show/hide a widget |
+      | POST | `/dashboards/:id/move_widget` | Reorder a single widget |
+      | POST | `/dashboards/:id/reorder` | Batch reorder with hidden_widgets |
+      | POST | `/dashboards/:id/save_filters` | Persist filter state |
       | GET  | `/widgets/:id` | Render individual widget |
 
       ### JavaScript
