@@ -13,4 +13,22 @@ class DashKit::WidgetDefinitionTest < ActiveSupport::TestCase
 
     assert_includes @dashboard.widget_definitions, definition
   end
+
+  test "stores the source verbatim" do
+    definition = @dashboard.widget_definitions.create!(source: "revenue", visualization: "single_value")
+
+    assert_equal "revenue", definition.reload.source
+  end
+
+  test "stores the visualization verbatim" do
+    definition = @dashboard.widget_definitions.create!(source: "revenue", visualization: "single_value")
+
+    assert_equal "single_value", definition.reload.visualization
+  end
+
+  test "stores the options hash verbatim" do
+    definition = @dashboard.widget_definitions.create!(source: "revenue", visualization: "chart", options: { "color" => "blue" })
+
+    assert_equal({ "color" => "blue" }, definition.reload.options)
+  end
 end
