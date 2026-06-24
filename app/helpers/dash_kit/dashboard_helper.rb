@@ -47,7 +47,7 @@ module DashKit
     end
 
     def dash_kit_settings_modal(config:)
-      render partial: "dash_kit/configurations/settings_modal", locals: { config: config }
+      render partial: "dash_kit/dashboards/settings_modal", locals: { config: config }
     end
 
     def dash_kit_settings_button_attributes
