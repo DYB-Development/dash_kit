@@ -46,4 +46,13 @@ class DashKit::ConfigurationBackfillTest < ActiveSupport::TestCase
 
     assert_equal({ "tasks" => { "limit" => 5 } }, DashKit::Dashboard.for_owner(@account).last.widget_settings)
   end
+
+  test "is idempotent across re-runs" do
+    DashKit::Configuration.create!(owner: @account, dashboard_type: "home")
+
+    DashKit::ConfigurationBackfill.run
+    DashKit::ConfigurationBackfill.run
+
+    assert_equal 1, DashKit::Dashboard.for_owner(@account).count
+  end
 end
