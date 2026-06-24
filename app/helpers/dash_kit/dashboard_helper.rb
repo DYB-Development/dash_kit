@@ -46,6 +46,16 @@ module DashKit
       content_tag("turbo-frame", loading_content, id: id, src: src, loading: "lazy", target: "_top", style: "display: block")
     end
 
+    def dash_kit_filter_select(config:, key:, options:)
+      form_tag dash_kit.save_filters_dashboard_path(config), method: :post do
+        safe_join([
+          hidden_field_tag("filter_key", key),
+          select_tag("filter_value", options_for_select(options, config.filter_state[key.to_s]),
+            onchange: "this.form.requestSubmit()")
+        ])
+      end
+    end
+
     def dash_kit_settings_modal(config:)
       render partial: "dash_kit/dashboards/settings_modal", locals: { config: config }
     end

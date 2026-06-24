@@ -307,6 +307,34 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "last_7_days", dashboard.reload.filter_state["time_period"]
   end
 
+  test "save_filters re-renders the widgets via turbo stream" do
+    register_home_widgets
+    dashboard = home_dashboard
+
+    post dash_kit.save_filters_dashboard_path(dashboard),
+      params: { filter_key: "time_period", filter_value: "last_7_days" }, as: :turbo_stream
+
+    assert_match(/<turbo-stream action="replace" target="dashboard-widgets">/, response.body)
+  end
+
+  test "a saved filter is visible when a widget reloads" do
+    DashKit.reset_registry!
+    DashKit.configure do |config|
+      config.register(:home) do |d|
+        d.widget :filtered, label: "Filtered", partial: "widgets/home/filtered"
+      end
+    end
+    dashboard = DashKit::Dashboard.create!(
+      name: "Home", owner: @account, dashboard_type: "home",
+      widget_order: %w[filtered], hidden_widgets: []
+    )
+
+    post dash_kit.save_filters_dashboard_path(dashboard), params: { filter_key: "time_period", filter_value: "last_7_days" }
+    get dash_kit.widget_path(:filtered, dashboard_id: dashboard.id)
+
+    assert_match "last_7_days", response.body
+  end
+
   test "reorder is forbidden when the viewer cannot edit" do
     register_home_widgets
     dashboard = home_dashboard
