@@ -88,13 +88,24 @@ module DashKit
 
     def save_filters
       widget_dashboard.update_filter(params[:filter_key], params[:filter_value])
-      head :ok
+      respond_to do |format|
+        format.turbo_stream { render_widgets }
+        format.html { redirect_back fallback_location: main_app.root_path }
+      end
     end
 
     private
 
     def widget_dashboard
       @widget_dashboard ||= dashboard_scope.find(params[:id])
+    end
+
+    def render_widgets
+      render turbo_stream: turbo_stream.replace(
+        "dashboard-widgets",
+        partial: "dash_kit/dashboards/widgets",
+        locals: { config: widget_dashboard }
+      )
     end
 
     def render_settings_modal
