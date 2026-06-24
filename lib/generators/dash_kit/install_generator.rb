@@ -13,7 +13,7 @@ module DashKit
       desc "Install DashKit dashboard engine"
 
       def copy_migration
-        migration_template "create_dash_kit_configurations.rb.tt", "db/migrate/create_dash_kit_configurations.rb"
+        migration_template "create_dash_kit_dashboards.rb.tt", "db/migrate/create_dash_kit_dashboards.rb"
       end
 
       def copy_initializer
@@ -58,7 +58,7 @@ module DashKit
         say "       rails db:migrate"
         say ""
         say "  2. Add the association to your owner model (e.g. Account):"
-        say "       has_many :dash_kit_configurations, class_name: \"DashKit::Configuration\","
+        say "       has_many :dash_kit_dashboards, class_name: \"DashKit::Dashboard\","
         say "                as: :owner, dependent: :destroy"
         say ""
         say "  3. Configure parent_controller and current_owner_method in"
