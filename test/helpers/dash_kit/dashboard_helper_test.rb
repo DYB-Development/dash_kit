@@ -136,6 +136,14 @@ module DashKit
       assert_match "Chart", html
     end
 
+    test "dash_kit_render_widgets renders a built definition frame" do
+      definition = @config.widget_definitions.create!(source: "revenue", visualization: "single_value")
+
+      html = dash_kit_render_widgets(config: @config)
+
+      assert_match "widget_definition_#{definition.id}", html
+    end
+
     test "dash_kit_available_sources returns the host sources for the current viewer" do
       viewer = Account.create!(name: "Analyst")
       configure_viewer(viewer)

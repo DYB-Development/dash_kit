@@ -37,7 +37,8 @@ module DashKit
             next unless widget_def
 
             dash_kit_widget_frame(widget_key, dashboard_id: config.id)
-          end
+          end +
+          config.widget_definitions.map { |definition| dash_kit_widget_definition_frame(definition) }
         )
       end
     end
