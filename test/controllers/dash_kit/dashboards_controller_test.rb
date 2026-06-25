@@ -474,6 +474,17 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "destroy_definition re-renders the widgets via turbo stream" do
+    register_home_widgets
+    dashboard = home_dashboard
+    definition = dashboard.widget_definitions.create!(source: "revenue", visualization: "line_chart")
+
+    post dash_kit.destroy_definition_dashboard_path(dashboard),
+      params: { definition_id: definition.id }, as: :turbo_stream
+
+    assert_match(/<turbo-stream action="replace" target="dashboard-widgets">/, response.body)
+  end
+
   test "toggle_widget does not affect another owner's dashboard" do
     register_home_widgets
     other_owner = Account.create!(name: "Other")
