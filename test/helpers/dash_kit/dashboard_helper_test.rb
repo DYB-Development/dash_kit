@@ -28,6 +28,7 @@ module DashKit
       DashKit.viewable_by = DashKit::OWNER_EQUALITY
       DashKit.editable_by = DashKit::OWNER_EQUALITY
       DashKit.shareable_by = DashKit::OWNER_EQUALITY
+      DashKit.available_sources_for = DashKit::NO_SOURCES
     end
 
     def configure_viewer(viewer)
@@ -133,6 +134,43 @@ module DashKit
       assert_match "dashboard-settings-modal", html
       assert_match "Stats", html
       assert_match "Chart", html
+    end
+
+    test "dash_kit_render_widgets renders a built definition frame" do
+      definition = @config.widget_definitions.create!(source: "revenue", visualization: "single_value")
+
+      html = dash_kit_render_widgets(config: @config)
+
+      assert_match "widget_definition_#{definition.id}", html
+    end
+
+    test "dash_kit_available_sources returns the host sources for the current viewer" do
+      viewer = Account.create!(name: "Analyst")
+      configure_viewer(viewer)
+      DashKit.available_sources_for = ->(v) { v == viewer ? %w[revenue expenses] : [] }
+
+      assert_equal %w[revenue expenses], dash_kit_available_sources
+    end
+
+    test "settings modal builder offers only host-allowed sources" do
+      configure_viewer(@config.owner)
+      DashKit.available_sources_for = ->(_v) { %w[revenue expenses] }
+
+      html = dash_kit_settings_modal(config: @config)
+
+      assert_match %r{<option[^>]*value="revenue"}, html
+      assert_match %r{<option[^>]*value="expenses"}, html
+    end
+
+    test "settings modal builder offers the registered visualizations" do
+      configure_viewer(@config.owner)
+      DashKit.available_sources_for = ->(_v) { %w[revenue] }
+      DashKit.reset_renderers!
+      DashKit.register_renderer(:single_value, partial: "renderers/single_value")
+
+      html = dash_kit_settings_modal(config: @config)
+
+      assert_match %r{<option[^>]*value="single_value"}, html
     end
 
     test "dash_kit_widget_definition_frame lazily loads the definition path" do
