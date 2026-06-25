@@ -2,7 +2,7 @@
 
 module DashKit
   class DashboardsController < DashKit.parent_controller.constantize
-    before_action :require_editable!, only: %i[toggle_widget move_widget reorder save_filters]
+    before_action :require_editable!, only: %i[toggle_widget move_widget reorder save_filters create_definition update_definition destroy_definition]
 
     def index
       @dashboards = dashboard_scope.all
@@ -94,7 +94,35 @@ module DashKit
       end
     end
 
+    def create_definition
+      widget_dashboard.widget_definitions.create(definition_params)
+      respond_to do |format|
+        format.turbo_stream { render_widgets }
+        format.html { redirect_back fallback_location: main_app.root_path }
+      end
+    end
+
+    def update_definition
+      widget_dashboard.widget_definitions.find(params[:definition_id]).update(definition_params)
+      respond_to do |format|
+        format.turbo_stream { render_widgets }
+        format.html { redirect_back fallback_location: main_app.root_path }
+      end
+    end
+
+    def destroy_definition
+      widget_dashboard.widget_definitions.find(params[:definition_id]).destroy
+      respond_to do |format|
+        format.turbo_stream { render_widgets }
+        format.html { redirect_back fallback_location: main_app.root_path }
+      end
+    end
+
     private
+
+    def definition_params
+      params.require(:widget_definition).permit(:source, :visualization, options: {})
+    end
 
     def widget_dashboard
       @widget_dashboard ||= dashboard_scope.find(params[:id])

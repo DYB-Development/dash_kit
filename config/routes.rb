@@ -10,6 +10,9 @@ DashKit::Engine.routes.draw do
       post :move_widget
       post :reorder
       post :save_filters
+      post :create_definition
+      post :update_definition
+      post :destroy_definition
     end
   end
 end

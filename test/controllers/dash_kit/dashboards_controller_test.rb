@@ -374,6 +374,142 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "create_definition persists a definition" do
+    register_home_widgets
+    dashboard = home_dashboard
+
+    assert_difference -> { DashKit::WidgetDefinition.count }, 1 do
+      post dash_kit.create_definition_dashboard_path(dashboard),
+        params: { widget_definition: { source: "revenue", visualization: "line_chart" } }
+    end
+  end
+
+  test "create_definition stores the submitted source" do
+    register_home_widgets
+    dashboard = home_dashboard
+
+    post dash_kit.create_definition_dashboard_path(dashboard),
+      params: { widget_definition: { source: "revenue", visualization: "line_chart" } }
+
+    assert_equal "revenue", dashboard.widget_definitions.last.source
+  end
+
+  test "create_definition re-renders the widgets via turbo stream" do
+    register_home_widgets
+    dashboard = home_dashboard
+
+    post dash_kit.create_definition_dashboard_path(dashboard),
+      params: { widget_definition: { source: "revenue", visualization: "line_chart" } }, as: :turbo_stream
+
+    assert_match(/<turbo-stream action="replace" target="dashboard-widgets">/, response.body)
+  end
+
+  test "create_definition is forbidden when the viewer cannot edit" do
+    register_home_widgets
+    dashboard = home_dashboard
+    DashKit.editable_by = ->(_dashboard, _viewer) { false }
+
+    post dash_kit.create_definition_dashboard_path(dashboard),
+      params: { widget_definition: { source: "revenue", visualization: "line_chart" } }
+
+    assert_response :forbidden
+  end
+
+  test "update_definition changes the source" do
+    register_home_widgets
+    dashboard = home_dashboard
+    definition = dashboard.widget_definitions.create!(source: "revenue", visualization: "line_chart")
+
+    post dash_kit.update_definition_dashboard_path(dashboard),
+      params: { definition_id: definition.id, widget_definition: { source: "expenses" } }
+
+    assert_equal "expenses", definition.reload.source
+  end
+
+  test "update_definition re-renders the widgets via turbo stream" do
+    register_home_widgets
+    dashboard = home_dashboard
+    definition = dashboard.widget_definitions.create!(source: "revenue", visualization: "line_chart")
+
+    post dash_kit.update_definition_dashboard_path(dashboard),
+      params: { definition_id: definition.id, widget_definition: { source: "expenses" } }, as: :turbo_stream
+
+    assert_match(/<turbo-stream action="replace" target="dashboard-widgets">/, response.body)
+  end
+
+  test "update_definition is forbidden when the viewer cannot edit" do
+    register_home_widgets
+    dashboard = home_dashboard
+    definition = dashboard.widget_definitions.create!(source: "revenue", visualization: "line_chart")
+    DashKit.editable_by = ->(_dashboard, _viewer) { false }
+
+    post dash_kit.update_definition_dashboard_path(dashboard),
+      params: { definition_id: definition.id, widget_definition: { source: "expenses" } }
+
+    assert_response :forbidden
+  end
+
+  test "update_definition does not change another owner's definition" do
+    register_home_widgets
+    other_owner = Account.create!(name: "Other")
+    theirs = DashKit::Dashboard.create!(
+      name: "Theirs", owner: other_owner, dashboard_type: "home",
+      widget_order: %w[on_deck tasks goals], hidden_widgets: []
+    )
+    definition = theirs.widget_definitions.create!(source: "revenue", visualization: "line_chart")
+
+    post dash_kit.update_definition_dashboard_path(theirs),
+      params: { definition_id: definition.id, widget_definition: { source: "expenses" } }
+
+    assert_equal "revenue", definition.reload.source
+  end
+
+  test "destroy_definition removes the definition" do
+    register_home_widgets
+    dashboard = home_dashboard
+    definition = dashboard.widget_definitions.create!(source: "revenue", visualization: "line_chart")
+
+    assert_difference -> { DashKit::WidgetDefinition.count }, -1 do
+      post dash_kit.destroy_definition_dashboard_path(dashboard), params: { definition_id: definition.id }
+    end
+  end
+
+  test "destroy_definition re-renders the widgets via turbo stream" do
+    register_home_widgets
+    dashboard = home_dashboard
+    definition = dashboard.widget_definitions.create!(source: "revenue", visualization: "line_chart")
+
+    post dash_kit.destroy_definition_dashboard_path(dashboard),
+      params: { definition_id: definition.id }, as: :turbo_stream
+
+    assert_match(/<turbo-stream action="replace" target="dashboard-widgets">/, response.body)
+  end
+
+  test "destroy_definition is forbidden when the viewer cannot edit" do
+    register_home_widgets
+    dashboard = home_dashboard
+    definition = dashboard.widget_definitions.create!(source: "revenue", visualization: "line_chart")
+    DashKit.editable_by = ->(_dashboard, _viewer) { false }
+
+    post dash_kit.destroy_definition_dashboard_path(dashboard), params: { definition_id: definition.id }
+
+    assert_response :forbidden
+  end
+
+  test "destroy_definition does not remove another owner's definition" do
+    register_home_widgets
+    other_owner = Account.create!(name: "Other")
+    theirs = DashKit::Dashboard.create!(
+      name: "Theirs", owner: other_owner, dashboard_type: "home",
+      widget_order: %w[on_deck tasks goals], hidden_widgets: []
+    )
+    definition = theirs.widget_definitions.create!(source: "revenue", visualization: "line_chart")
+
+    assert_no_difference -> { DashKit::WidgetDefinition.count } do
+      post dash_kit.destroy_definition_dashboard_path(theirs), params: { definition_id: definition.id }
+    end
+  end
+
   test "toggle_widget does not affect another owner's dashboard" do
     register_home_widgets
     other_owner = Account.create!(name: "Other")
