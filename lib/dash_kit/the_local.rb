@@ -14,7 +14,7 @@ begin
     c.agent "info",
       description: "Use to learn what DashKit is, what it does and does not do, and its architecture (widget registry, Dashboard, helpers, routes).",
       tools: "Read",
-      body: "You explain DashKit, answering only from the reference: what it is, what it deliberately is not, its widget registry, the Dashboard model, the WidgetManagement concern, the view helpers, the engine routes, and the Turbo lazy-load data flow. You make no changes.",
+      body: "You explain DashKit, answering only from the reference: what it is, what it deliberately is not, its widget registry, the Dashboard model, the WidgetManagement concern, the renderer registry and runtime widget builder (WidgetDefinition records built from a source and visualization), the view helpers, the engine routes, and the Turbo lazy-load data flow that hands both registered and built widgets the dashboard's filter_state. You make no changes.",
       knowledge: DashKit::Reference.content
 
     c.agent "install",
@@ -26,7 +26,7 @@ begin
     c.agent "develop",
       description: "Use to build dashboards and widgets with DashKit in a host app: register widget types, write widget partials, render and lazy-load them, and persist per-owner visibility, order, and filters correctly.",
       tools: "Read, Edit, Write, Bash",
-      body: "You build dashboards and widgets with DashKit, following the reference's conventions. You register dashboard types and widgets in DashKit.configure, write self-contained widget partials that fetch their own data, render through dash_kit_render_widgets so widgets lazy-load in Turbo Frames, and always scope dashboards to the current owner via Dashboard.for_owner. You persist preferences through the WidgetManagement methods and engine routes rather than writing JSON columns by hand. You never make DashKit query data or enforce metric semantics — those belong to the host.",
+      body: "You build dashboards and widgets with DashKit, following the reference's conventions. You register dashboard types and widgets in DashKit.configure, write self-contained widget partials that fetch their own data, render through dash_kit_render_widgets so widgets lazy-load in Turbo Frames, and always scope dashboards to the current owner via Dashboard.for_owner. You enable the runtime widget builder by setting DashKit.available_sources_for and registering a renderer per visualization with DashKit.register_renderer, writing renderer partials that read filter_state just like registered widgets, and persisting built widgets through the create_definition/update_definition/destroy_definition routes rather than writing WidgetDefinition rows by hand. You persist preferences through the WidgetManagement methods and engine routes rather than writing JSON columns by hand. You never make DashKit query data or enforce metric semantics — those belong to the host.",
       knowledge: DashKit::Reference.content
   end
 rescue LoadError
