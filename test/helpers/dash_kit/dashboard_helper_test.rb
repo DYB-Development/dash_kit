@@ -152,6 +152,16 @@ module DashKit
       assert_equal %w[revenue expenses], dash_kit_available_sources
     end
 
+    test "settings modal builder offers only host-allowed sources" do
+      configure_viewer(@config.owner)
+      DashKit.available_sources_for = ->(_v) { %w[revenue expenses] }
+
+      html = dash_kit_settings_modal(config: @config)
+
+      assert_match %r{<option[^>]*value="revenue"}, html
+      assert_match %r{<option[^>]*value="expenses"}, html
+    end
+
     test "dash_kit_widget_definition_frame lazily loads the definition path" do
       definition = @config.widget_definitions.create!(source: "revenue", visualization: "single_value")
 
