@@ -415,6 +415,17 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
+  test "update_definition changes the source" do
+    register_home_widgets
+    dashboard = home_dashboard
+    definition = dashboard.widget_definitions.create!(source: "revenue", visualization: "line_chart")
+
+    post dash_kit.update_definition_dashboard_path(dashboard),
+      params: { definition_id: definition.id, widget_definition: { source: "expenses" } }
+
+    assert_equal "expenses", definition.reload.source
+  end
+
   test "toggle_widget does not affect another owner's dashboard" do
     register_home_widgets
     other_owner = Account.create!(name: "Other")

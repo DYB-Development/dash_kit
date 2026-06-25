@@ -11,6 +11,7 @@ DashKit::Engine.routes.draw do
       post :reorder
       post :save_filters
       post :create_definition
+      post :update_definition
     end
   end
 end
