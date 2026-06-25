@@ -23,6 +23,10 @@ module DashKit
       DashKit.available_sources(dash_kit_current_viewer)
     end
 
+    def dash_kit_visualizations
+      DashKit.visualizations
+    end
+
     def dash_kit_widget_label(config, widget_key)
       config.available_widgets.dig(widget_key.to_sym, :label) || widget_key.to_s.humanize
     end

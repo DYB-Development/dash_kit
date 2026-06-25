@@ -162,6 +162,17 @@ module DashKit
       assert_match %r{<option[^>]*value="expenses"}, html
     end
 
+    test "settings modal builder offers the registered visualizations" do
+      configure_viewer(@config.owner)
+      DashKit.available_sources_for = ->(_v) { %w[revenue] }
+      DashKit.reset_renderers!
+      DashKit.register_renderer(:single_value, partial: "renderers/single_value")
+
+      html = dash_kit_settings_modal(config: @config)
+
+      assert_match %r{<option[^>]*value="single_value"}, html
+    end
+
     test "dash_kit_widget_definition_frame lazily loads the definition path" do
       definition = @config.widget_definitions.create!(source: "revenue", visualization: "single_value")
 
