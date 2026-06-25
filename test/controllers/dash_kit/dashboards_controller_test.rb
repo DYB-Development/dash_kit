@@ -449,6 +449,21 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
+  test "update_definition does not change another owner's definition" do
+    register_home_widgets
+    other_owner = Account.create!(name: "Other")
+    theirs = DashKit::Dashboard.create!(
+      name: "Theirs", owner: other_owner, dashboard_type: "home",
+      widget_order: %w[on_deck tasks goals], hidden_widgets: []
+    )
+    definition = theirs.widget_definitions.create!(source: "revenue", visualization: "line_chart")
+
+    post dash_kit.update_definition_dashboard_path(theirs),
+      params: { definition_id: definition.id, widget_definition: { source: "expenses" } }
+
+    assert_equal "revenue", definition.reload.source
+  end
+
   test "toggle_widget does not affect another owner's dashboard" do
     register_home_widgets
     other_owner = Account.create!(name: "Other")
