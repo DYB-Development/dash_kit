@@ -58,6 +58,10 @@ module DashKit
     renderers.renderer_for(visualization)
   end
 
+  def self.visualizations
+    renderers.visualizations
+  end
+
   def self.reset_renderers!
     @renderers = RendererRegistry.new
   end

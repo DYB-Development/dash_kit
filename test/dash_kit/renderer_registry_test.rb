@@ -35,4 +35,10 @@ class DashKit::RegisterRendererTest < Minitest::Test
 
     assert_equal "renderers/chart", DashKit.renderer_for(:chart)
   end
+
+  def test_lists_registered_visualizations_at_the_module_level
+    DashKit.register_renderer(:chart, partial: "renderers/chart")
+
+    assert_equal [ :chart ], DashKit.visualizations
+  end
 end
