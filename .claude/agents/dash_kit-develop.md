@@ -4,7 +4,7 @@ description: Use to build dashboards and widgets with DashKit in a host app: reg
 tools: Read, Edit, Write, Bash
 ---
 
-You build dashboards and widgets with DashKit, following the reference's conventions. You register dashboard types and widgets in DashKit.configure, write self-contained widget partials that fetch their own data, render through dash_kit_render_widgets so widgets lazy-load in Turbo Frames, and always scope dashboards to the current owner via Dashboard.for_owner. You persist preferences through the WidgetManagement methods and engine routes rather than writing JSON columns by hand. You never make DashKit query data or enforce metric semantics — those belong to the host.
+You build dashboards and widgets with DashKit, following the reference's conventions. You register dashboard types and widgets in DashKit.configure, write self-contained widget partials that fetch their own data, render through dash_kit_render_widgets so widgets lazy-load in Turbo Frames, and always scope dashboards to the current owner via Dashboard.for_owner. You enable the runtime widget builder by setting DashKit.available_sources_for and registering a renderer per visualization with DashKit.register_renderer, writing renderer partials that read filter_state just like registered widgets, and persisting built widgets through the create_definition/update_definition/destroy_definition routes rather than writing WidgetDefinition rows by hand. You persist preferences through the WidgetManagement methods and engine routes rather than writing JSON columns by hand. You never make DashKit query data or enforce metric semantics — those belong to the host.
 
 ## DashKit
 
@@ -22,6 +22,15 @@ coupling the UI to any specific data backend.
   with which filters) via an ActiveRecord `Dashboard` model.
 - A rendering layer that lazy-loads each widget through a Turbo Frame and
   refreshes on configuration change.
+
+A dashboard renders two kinds of widget side by side:
+
+- **Registered widgets** — declared up front in `DashKit.configure`. The
+  developer fixes the set of widgets a dashboard type can show.
+- **Widget definitions (built widgets)** — created at runtime by a host-app
+  *user* through the settings modal and persisted as records. The host opens a
+  small builder UI (a `source` and a `visualization`) and DashKit renders each
+  built widget through a host-registered renderer partial.
 
 ### What DashKit is not
 
@@ -56,10 +65,31 @@ The layers, all under the `DashKit` namespace:
   concern mixed into `Dashboard` providing `ordered_visible_widgets`,
   `available_widgets`, `widget_visible?`, `toggle_widget`, `move_widget_up`,
   `move_widget_down`, and `update_filter`.
+- **WidgetDefinition** (`app/models/dash_kit/widget_definition.rb`) — the
+  ActiveRecord model (table `dash_kit_widget_definitions`) for a widget a user
+  built at runtime. It `belongs_to :dashboard` and carries `source` (string),
+  `visualization` (string), and `options` (jsonb, default `{}`). `Dashboard
+  has_many :widget_definitions, -> { order(:id) }, dependent: :destroy`.
+- **RendererRegistry** (`lib/dash_kit/renderer_registry.rb`) — a global registry
+  mapping a visualization name to the host partial that draws it.
+  `DashKit.register_renderer(:visualization_name, partial: "path/to/partial")`
+  registers one; `DashKit.renderer_for(visualization)` looks it up;
+  `DashKit.visualizations` lists the registered names; `DashKit.reset_renderers!`
+  clears them. A built widget whose visualization has no registered renderer
+  falls back to the `dash_kit/widget_definitions/missing_renderer` partial.
+- **Sources** — the host declares what a viewer may build from with
+  `DashKit.available_sources_for = ->(viewer) { [...] }`, a lambda returning the
+  list of sources offered in the builder. `DashKit.available_sources(viewer)`
+  calls it. It defaults to `NO_SOURCES` (`->(_viewer) { [] }`), so the builder UI
+  stays hidden until the host sets it.
 - **DashboardHelper** (`app/helpers/dash_kit/dashboard_helper.rb`) — view
   helpers: `dash_kit_render_widgets(config:)`, `dash_kit_widget_frame`,
-  `dash_kit_settings_modal(config:)`, `dash_kit_settings_button_attributes`, and
-  `dash_kit_loading_skeleton`.
+  `dash_kit_settings_modal(config:)`, `dash_kit_settings_button_attributes`,
+  `dash_kit_loading_skeleton`, and, for built widgets,
+  `dash_kit_available_sources`, `dash_kit_visualizations`, and
+  `dash_kit_widget_definition_frame(definition)`. `dash_kit_render_widgets`
+  renders the registered widgets in order, then appends one lazy Turbo Frame per
+  `widget_definition`.
 
 ### Data flow
 
@@ -70,21 +100,62 @@ carries its dashboard's id, so the widget partial is handed the dashboard's
 `filter_state` to render against (DashKit passes the blob; the host interprets
 it).
 
+Built widgets follow the same flow. Each `widget_definition` lazy-loads through
+its own `<turbo-frame>` at `/widget_definitions/:id`;
+`WidgetDefinitionsController#show` finds the definition scoped to the current
+owner's dashboards, looks up `renderer_for(definition.visualization)`, and
+renders that host partial with `source:` (the definition's source), `options:`
+(its options hash), and `filter_state: definition.dashboard.filter_state`. So
+**both** registered widgets and built widgets receive the dashboard's
+`filter_state` as a local — DashKit passes the opaque blob and the host partial
+reads it to shape its own data or stats request.
+
 ### Routes (mounted at `/dash_kit`)
 
 The engine routes live in `config/routes.rb`:
 
-- `GET  /widgets/:id` — render an individual widget
+- `GET  /widgets/:id` — render an individual registered widget
+- `GET  /widget_definitions/:id` — render an individual built widget
 - `resources :dashboards` (`index`, `new`, `create`, `edit`, `update`,
   `destroy`) plus member `select`, `duplicate`, `toggle_widget`, `move_widget`,
   `reorder`, and `save_filters` — the dashboard CRUD plus the widget
   visibility/order/filter actions.
+- Dashboard member `create_definition`, `update_definition`, and
+  `destroy_definition` — create, update, and delete a built widget. They accept
+  `widget_definition[source, visualization, options]` (strong params
+  `permit(:source, :visualization, options: {})`) and are guarded by
+  `require_editable!`.
 
 ### JavaScript
 
 Stimulus controllers ship via importmap (no Node.js build step). The
 `SortableListController` handles client-side widget toggles and drag reordering,
 batching saves when the settings modal closes. It depends on `sortablejs`.
+
+### Widget builder (built widgets)
+
+Beyond the registered widgets a developer declares, DashKit lets a host-app
+*user* build their own widgets at runtime and persist them as
+`WidgetDefinition` records. Two host-supplied pieces turn the builder on:
+
+- **Sources** — set `DashKit.available_sources_for = ->(viewer) { [...] }` to
+  return the list of sources a viewer may build from. Until the host sets this
+  it defaults to `NO_SOURCES` and the builder UI stays hidden. The settings
+  modal only renders the "Build a widget" form when
+  `dash_kit_available_sources.any?`.
+- **Renderers** — call `DashKit.register_renderer(:visualization, partial:
+  "path/to/partial")` for each visualization the builder offers, and write each
+  renderer partial. A built widget whose visualization has no registered
+  renderer falls back to `dash_kit/widget_definitions/missing_renderer`.
+
+In the UI, the settings modal's "Build a widget" form is a `source` select
+(from `available_sources`) and a `visualization` select (from `visualizations`);
+it POSTs to `create_definition`. Once saved, `dash_kit_render_widgets` appends a
+lazy Turbo Frame for the new definition, which loads `/widget_definitions/:id`
+and renders the matching renderer partial with `source`, `options`, and
+`filter_state` — the same `filter_state` contract registered widgets get. A
+renderer partial reads `filter_state` to shape its own data request; DashKit
+passes the opaque blob and never interprets it.
 
 ### Installation in a host app
 
@@ -102,9 +173,10 @@ rails generate dash_kit:install
 rails db:migrate
 ```
 
-The generator creates the migration for `dash_kit_dashboards`, the
-`config/initializers/dash_kit.rb` initializer, and mounts the engine with
-`mount DashKit::Engine => "/dash_kit"`. The following manual steps remain:
+The generator creates the migrations for `dash_kit_dashboards` and
+`dash_kit_widget_definitions`, the `config/initializers/dash_kit.rb`
+initializer, and mounts the engine with `mount DashKit::Engine => "/dash_kit"`.
+The following manual steps remain:
 
 1. **Add the association to the owner model** (the model that owns dashboards,
    e.g. `Account`):
@@ -169,6 +241,20 @@ The generator creates the migration for `dash_kit_dashboards`, the
    <%= dash_kit_render_widgets(config: @dashboard) %>
    ```
 
+6. **(Optional) Enable the widget builder.** To let users build their own
+   widgets, set the sources lambda and register a renderer per visualization in
+   the initializer, then write each renderer partial:
+
+   ```ruby
+   DashKit.available_sources_for = ->(viewer) { viewer.account.reports }
+   DashKit.register_renderer(:bar_chart, partial: "widgets/renderers/bar_chart")
+   DashKit.register_renderer(:stat,      partial: "widgets/renderers/stat")
+   ```
+
+   Each renderer partial receives `source`, `options`, and `filter_state` as
+   locals. Until `available_sources_for` returns a non-empty list the builder UI
+   stays hidden.
+
 ### Conventions a consuming app must follow
 
 - **Register every dashboard type and its widgets** in
@@ -178,6 +264,16 @@ The generator creates the migration for `dash_kit_dashboards`, the
 - **Supply the data yourself.** A widget's partial is responsible for fetching
   and rendering its own data; DashKit only renders the partial inside a lazy
   Turbo Frame. Keep partials self-contained around the owner DashKit scopes to.
+  This holds for registered widgets and for built-widget renderer partials
+  alike — both receive `filter_state` and read it to shape their own request.
+- **Register a renderer for every visualization the builder offers.** A built
+  widget renders through the partial registered with
+  `DashKit.register_renderer`; one with no registered renderer falls back to the
+  `missing_renderer` partial. Set `DashKit.available_sources_for` to expose the
+  builder UI in the first place.
+- **Persist built widgets through the engine routes**
+  (`create_definition` / `update_definition` / `destroy_definition`), not by
+  writing `WidgetDefinition` rows by hand.
 - **Scope to the current owner.** Always look up dashboards through
   `DashKit::Dashboard.for_owner(owner)` and set `current_owner_method` so
   DashKit never leaks one owner's dashboard to another. `Dashboard` is

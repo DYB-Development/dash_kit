@@ -13,7 +13,6 @@ bundle install                    # Install dependencies
 bundle exec rake test             # Run all tests
 bundle exec rake test TEST=test/path/to/test.rb  # Run a single test file
 bundle exec bin/rubocop           # Lint (rubocop-rails-omakase)
-rake dash_kit:claude              # Append DashKit API reference to consuming app's CLAUDE.md
 ```
 
 ## Architecture
