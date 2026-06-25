@@ -28,6 +28,7 @@ module DashKit
       DashKit.viewable_by = DashKit::OWNER_EQUALITY
       DashKit.editable_by = DashKit::OWNER_EQUALITY
       DashKit.shareable_by = DashKit::OWNER_EQUALITY
+      DashKit.available_sources_for = DashKit::NO_SOURCES
     end
 
     def configure_viewer(viewer)
@@ -133,6 +134,14 @@ module DashKit
       assert_match "dashboard-settings-modal", html
       assert_match "Stats", html
       assert_match "Chart", html
+    end
+
+    test "dash_kit_available_sources returns the host sources for the current viewer" do
+      viewer = Account.create!(name: "Analyst")
+      configure_viewer(viewer)
+      DashKit.available_sources_for = ->(v) { v == viewer ? %w[revenue expenses] : [] }
+
+      assert_equal %w[revenue expenses], dash_kit_available_sources
     end
 
     test "dash_kit_widget_definition_frame lazily loads the definition path" do
