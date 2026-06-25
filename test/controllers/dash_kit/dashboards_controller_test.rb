@@ -496,6 +496,20 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
+  test "destroy_definition does not remove another owner's definition" do
+    register_home_widgets
+    other_owner = Account.create!(name: "Other")
+    theirs = DashKit::Dashboard.create!(
+      name: "Theirs", owner: other_owner, dashboard_type: "home",
+      widget_order: %w[on_deck tasks goals], hidden_widgets: []
+    )
+    definition = theirs.widget_definitions.create!(source: "revenue", visualization: "line_chart")
+
+    assert_no_difference -> { DashKit::WidgetDefinition.count } do
+      post dash_kit.destroy_definition_dashboard_path(theirs), params: { definition_id: definition.id }
+    end
+  end
+
   test "toggle_widget does not affect another owner's dashboard" do
     register_home_widgets
     other_owner = Account.create!(name: "Other")
