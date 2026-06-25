@@ -404,6 +404,16 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     assert_match(/<turbo-stream action="replace" target="dashboard-widgets">/, response.body)
   end
 
+  test "create_definition renders the new definition in the refreshed widgets" do
+    register_home_widgets
+    dashboard = home_dashboard
+
+    post dash_kit.create_definition_dashboard_path(dashboard),
+      params: { widget_definition: { source: "revenue", visualization: "line_chart" } }, as: :turbo_stream
+
+    assert_includes response.body, "widget_definition_#{dashboard.widget_definitions.last.id}"
+  end
+
   test "create_definition is forbidden when the viewer cannot edit" do
     register_home_widgets
     dashboard = home_dashboard
