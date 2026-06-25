@@ -16,6 +16,13 @@ class DashKit::RendererRegistryTest < Minitest::Test
   def test_unknown_visualization_returns_nil
     assert_nil @registry.renderer_for(:nonexistent)
   end
+
+  def test_lists_registered_visualizations
+    @registry.register(:single_value, partial: "renderers/single_value")
+    @registry.register(:line_chart, partial: "renderers/line_chart")
+
+    assert_equal %i[single_value line_chart], @registry.visualizations
+  end
 end
 
 class DashKit::RegisterRendererTest < Minitest::Test

@@ -13,5 +13,9 @@ module DashKit
     def renderer_for(visualization)
       @renderers[visualization.to_sym]
     end
+
+    def visualizations
+      @renderers.keys
+    end
   end
 end
