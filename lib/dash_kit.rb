@@ -11,10 +11,16 @@ module DashKit
   mattr_accessor :current_viewer_method, default: nil
 
   OWNER_EQUALITY = ->(dashboard, viewer) { dashboard.owner == viewer }
+  NO_SOURCES = ->(_viewer) { [] }
 
   mattr_accessor :viewable_by, default: OWNER_EQUALITY
   mattr_accessor :editable_by, default: OWNER_EQUALITY
   mattr_accessor :shareable_by, default: OWNER_EQUALITY
+  mattr_accessor :available_sources_for, default: NO_SOURCES
+
+  def self.available_sources(viewer)
+    available_sources_for.call(viewer)
+  end
 
   def self.viewable?(dashboard, viewer)
     viewable_by.call(dashboard, viewer)
