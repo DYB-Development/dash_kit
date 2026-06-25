@@ -374,6 +374,16 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "create_definition persists a definition" do
+    register_home_widgets
+    dashboard = home_dashboard
+
+    assert_difference -> { DashKit::WidgetDefinition.count }, 1 do
+      post dash_kit.create_definition_dashboard_path(dashboard),
+        params: { widget_definition: { source: "revenue", visualization: "line_chart" } }
+    end
+  end
+
   test "toggle_widget does not affect another owner's dashboard" do
     register_home_widgets
     other_owner = Account.create!(name: "Other")
