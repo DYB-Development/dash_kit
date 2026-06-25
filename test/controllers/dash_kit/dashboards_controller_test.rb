@@ -464,6 +464,16 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "revenue", definition.reload.source
   end
 
+  test "destroy_definition removes the definition" do
+    register_home_widgets
+    dashboard = home_dashboard
+    definition = dashboard.widget_definitions.create!(source: "revenue", visualization: "line_chart")
+
+    assert_difference -> { DashKit::WidgetDefinition.count }, -1 do
+      post dash_kit.destroy_definition_dashboard_path(dashboard), params: { definition_id: definition.id }
+    end
+  end
+
   test "toggle_widget does not affect another owner's dashboard" do
     register_home_widgets
     other_owner = Account.create!(name: "Other")
