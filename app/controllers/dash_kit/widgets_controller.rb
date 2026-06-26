@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DashKit
-  class WidgetsController < ApplicationController
+  class WidgetsController < DashKit.parent_controller.constantize
     def show
       widget_key = params[:id].to_sym
       widget_def = find_widget_definition(widget_key)
