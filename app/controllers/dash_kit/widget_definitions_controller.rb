@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DashKit
-  class WidgetDefinitionsController < ApplicationController
+  class WidgetDefinitionsController < DashKit.parent_controller.constantize
     def show
       definition = definition_scope.find_by(id: params[:id])
       return head :not_found if definition.nil?
