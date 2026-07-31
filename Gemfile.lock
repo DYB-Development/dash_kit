@@ -7,9 +7,9 @@ GIT
 
 GIT
   remote: https://github.com/tylercschneider/the_local.git
-  revision: 2878a5192a587f0caf7b094f95687e8ffa9f6aa2
+  revision: 9b2a3c6074cbec98b3d6c4474f3fcf00f83d0186
   specs:
-    the_local (0.1.0)
+    the_local (0.4.0)
 
 PATH
   remote: .
