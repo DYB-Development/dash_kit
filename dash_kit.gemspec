@@ -5,7 +5,7 @@ Gem::Specification.new do |spec|
   spec.version     = DashKit::VERSION
   spec.authors     = [ "Tyler Schneider" ]
   spec.email       = [ "tylercschneider@gmail.com" ]
-  spec.homepage    = "https://github.com/tylercschneider/dash_kit"
+  spec.homepage    = "https://github.com/DYB-Development/dash_kit"
   spec.summary     = "A Rails engine for composable, configurable dashboards and widgets."
   spec.description = "DashKit provides a presentation layer for building reusable dashboards. " \
                      "Register widgets, persist user configuration, and render dashboards " \
@@ -15,8 +15,8 @@ Gem::Specification.new do |spec|
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the "allowed_push_host"
   # to allow pushing to a single host or delete this section to allow pushing to any host.
   spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://github.com/tylercschneider/dash_kit"
-  spec.metadata["changelog_uri"] = "https://github.com/tylercschneider/dash_kit/blob/main/CHANGELOG.md"
+  spec.metadata["source_code_uri"] = "https://github.com/DYB-Development/dash_kit"
+  spec.metadata["changelog_uri"] = "https://github.com/DYB-Development/dash_kit/blob/main/CHANGELOG.md"
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
     Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
