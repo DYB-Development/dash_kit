@@ -87,7 +87,7 @@ DashKit does **not** define:
 Add the gem to your Gemfile:
 
 ```ruby
-gem "dash_kit", github: "tylercschneider/dash_kit"
+gem "dash_kit", github: "DYB-Development/dash_kit"
 ```
 
 Run the install generator:
