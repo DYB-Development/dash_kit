@@ -154,7 +154,7 @@ passes the opaque blob and never interprets it.
 Add the gem to the host's `Gemfile` (until it is on RubyGems, use a git source):
 
 ```ruby
-gem "dash_kit", github: "tylercschneider/dash_kit"
+gem "dash_kit", github: "DYB-Development/dash_kit"
 ```
 
 Then run the install generator and migrate:
