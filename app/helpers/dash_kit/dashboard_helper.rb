@@ -1,10 +1,14 @@
 # frozen_string_literal: true
 
 require "ks_blocks/layout_helper"
+require "ks_blocks/content_helper"
+require "keystone_ui/react/mount_helper"
 
 module DashKit
   module DashboardHelper
     include KsBlocks::LayoutHelper
+    include KsBlocks::ContentHelper
+    include KeystoneUi::React::MountHelper
 
     def dash_kit_viewable?(config)
       DashKit.viewable?(config, dash_kit_current_viewer)
@@ -39,9 +43,28 @@ module DashKit
       return content_tag(:div, "", id: "dashboard-widgets") unless config
 
       content_tag(:div, id: "dashboard-widgets") do
-        block_layout(config.blocks, kind: config.dashboard_type.to_sym) do |block|
-          dash_kit_block_frame(config, block)
-        end
+        dash_kit_arrangeable?(config) ? dash_kit_widget_grid(config) : dash_kit_drawn_widgets(config)
+      end
+    end
+
+    def dash_kit_arrangeable?(config)
+      DashKit.editable?(config, dash_kit_current_viewer)
+    end
+
+    def dash_kit_widget_grid(config)
+      safe_join([
+        react_ui("dash_kit/dashboard-grid", config.layout_data.merge(base: dash_kit.dashboard_path(config), token: dash_kit_form_token)),
+        block_contents(config.blocks) { |block| dash_kit_block_frame(config, block) }
+      ])
+    end
+
+    def dash_kit_form_token
+      controller.respond_to?(:form_authenticity_token) ? controller.send(:form_authenticity_token) : nil
+    end
+
+    def dash_kit_drawn_widgets(config)
+      block_layout(config.blocks, kind: config.dashboard_type.to_sym) do |block|
+        dash_kit_block_frame(config, block)
       end
     end
 
