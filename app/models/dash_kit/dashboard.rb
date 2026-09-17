@@ -9,11 +9,7 @@ module DashKit
 
     self.table_name = "dash_kit_dashboards"
 
-    block_layout :blocks, kind: :blocks
-
-    def block_layout_kind
-      dashboard_type.to_sym
-    end
+    block_layout :blocks, kind: ->(dashboard) { dashboard.dashboard_type.to_sym }
 
     def add_built_widget(definition, x: nil, y: nil)
       built = KsBlocks.registry.block_types(kind: block_layout_kind).find { |type| type.key == WidgetRegistry::BUILT_WIDGET }
