@@ -1,3 +1,4 @@
+require "timeout"
 # frozen_string_literal: true
 
 require "application_system_test_case"
@@ -17,5 +18,16 @@ class DashboardGridTest < ApplicationSystemTestCase
     visit "/dashboards/#{@dashboard.id}"
 
     assert_selector "[data-block] [data-block-handle]"
+  end
+  test "a widget moved by its handle stays where it was put after a reload" do
+    visit "/dashboards/#{@dashboard.id}"
+    widget = find("[data-block]")
+    handle = widget.find("[data-block-handle]")
+
+    page.driver.browser.action.click_and_hold(handle.native).move_by(300, 0).move_by(300, 0).release.perform
+    Timeout.timeout(Capybara.default_max_wait_time) { sleep 0.05 until @dashboard.reload.blocks.first["x"].positive? }
+    refresh
+
+    assert_operator @dashboard.reload.blocks.first["x"], :>, 0
   end
 end
