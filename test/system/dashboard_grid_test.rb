@@ -14,6 +14,10 @@ class DashboardGridTest < ApplicationSystemTestCase
     @dashboard.add_block(KsBlocks.registry.block_types(kind: :stats).find { |type| type.key == :revenue }, x: 0, y: 0)
   end
 
+  teardown do
+    DashKit.current_viewer_method = nil
+  end
+
   test "a dashboard draws its widgets on a grid a viewer can take hold of" do
     visit "/dashboards/#{@dashboard.id}"
 

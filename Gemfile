@@ -10,6 +10,7 @@ gem "rake"
 gem "the_local", github: "tylercschneider/the_local"
 
 gem "propshaft"
+gem "rdoc", "< 8"  # rdoc 8 needs rbs 4, which needs Ruby 3.3; this gem is tested on 3.2 too
 gem "capybara"
 gem "selenium-webdriver"
 
