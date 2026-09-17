@@ -10,6 +10,7 @@ module DashKit
       builder = DashboardBuilder.new
       block.call(builder)
       @dashboards[dashboard_type.to_sym] = builder.widgets.freeze
+      register_block_types(dashboard_type)
     end
 
     def widgets_for(dashboard_type)
@@ -32,6 +33,16 @@ module DashKit
 
     def dashboard_types
       @dashboards.keys
+    end
+
+    private
+
+    def register_block_types(dashboard_type)
+      widgets_for(dashboard_type).each do |key, widget|
+        KsBlocks.block(key, name: widget[:label], kind: dashboard_type.to_sym,
+                       width: widget[:width], height: widget[:height],
+                       narrow_width: widget[:narrow_width], narrow_height: widget[:narrow_height])
+      end
     end
   end
 
