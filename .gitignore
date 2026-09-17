@@ -6,3 +6,5 @@
 test/dummy/log/
 test/dummy/storage/
 /node_modules/
+
+test/dummy/tmp/
