@@ -30,4 +30,13 @@ class DashboardGridTest < ApplicationSystemTestCase
 
     assert_operator @dashboard.reload.blocks.first["x"], :>, 0
   end
+  test "the grid is drawn again when the dashboard is reached a second time" do
+    visit "/dashboards/#{@dashboard.id}"
+    find("[data-block-handle]")
+
+    click_on "Elsewhere"
+    click_on "Back"
+
+    assert_selector "[data-block] [data-block-handle]"
+  end
 end
