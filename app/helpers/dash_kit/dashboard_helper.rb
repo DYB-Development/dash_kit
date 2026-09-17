@@ -83,18 +83,6 @@ module DashKit
       end
     end
 
-    def dash_kit_settings_modal(config:)
-      render partial: "dash_kit/dashboards/settings_modal", locals: { config: config }
-    end
-
-    def dash_kit_settings_button_attributes
-      {
-        type: "button",
-        class: "inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50",
-        data: { action: "click->modal#open" }
-      }
-    end
-
     def dash_kit_loading_skeleton
       content_tag(:div, class: "rounded-xl bg-white dark:bg-zinc-800 shadow p-4") do
         content_tag(:div, class: "animate-pulse") do

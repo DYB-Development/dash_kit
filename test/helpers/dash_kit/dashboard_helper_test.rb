@@ -121,19 +121,6 @@ module DashKit
       assert_match "animate-pulse", html
     end
 
-    test "dash_kit_settings_button_attributes returns hash with modal action" do
-      attrs = dash_kit_settings_button_attributes
-      assert_equal "button", attrs[:type]
-      assert_equal "click->modal#open", attrs[:data][:action]
-    end
-
-    test "dash_kit_settings_modal renders modal with widget toggles" do
-      html = dash_kit_settings_modal(config: @config)
-      assert_match "dashboard-settings-modal", html
-      assert_match "Stats", html
-      assert_match "Chart", html
-    end
-
     test "dash_kit_render_widgets renders a built definition frame" do
       definition = @config.widget_definitions.create!(source: "revenue", visualization: "single_value")
       @config.add_built_widget(definition)
@@ -149,27 +136,6 @@ module DashKit
       DashKit.available_sources_for = ->(v) { v == viewer ? %w[revenue expenses] : [] }
 
       assert_equal %w[revenue expenses], dash_kit_available_sources
-    end
-
-    test "settings modal builder offers only host-allowed sources" do
-      configure_viewer(@config.owner)
-      DashKit.available_sources_for = ->(_v) { %w[revenue expenses] }
-
-      html = dash_kit_settings_modal(config: @config)
-
-      assert_match %r{<option[^>]*value="revenue"}, html
-      assert_match %r{<option[^>]*value="expenses"}, html
-    end
-
-    test "settings modal builder offers the registered visualizations" do
-      configure_viewer(@config.owner)
-      DashKit.available_sources_for = ->(_v) { %w[revenue] }
-      DashKit.reset_renderers!
-      DashKit.register_renderer(:single_value, partial: "renderers/single_value")
-
-      html = dash_kit_settings_modal(config: @config)
-
-      assert_match %r{<option[^>]*value="single_value"}, html
     end
 
     def test_a_dashboard_draws_each_widget_where_its_layout_puts_it

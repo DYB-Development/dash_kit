@@ -50,16 +50,6 @@ class DashKit::Generators::InstallGeneratorTest < Rails::Generators::TestCase
     end
   end
 
-  test "pins sortablejs in the importmap" do
-    File.write(File.join(destination_root, "config", "importmap.rb"), "# Pin npm packages\n")
-
-    run_generator
-
-    assert_file "config/importmap.rb" do |content|
-      assert_match(/pin "sortablejs"/, content)
-    end
-  end
-
   test "does not duplicate an already-pinned sortablejs" do
     File.write(File.join(destination_root, "config", "importmap.rb"), %(pin "sortablejs" # @1.15.7\n))
 

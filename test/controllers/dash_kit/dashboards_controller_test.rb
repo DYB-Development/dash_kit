@@ -244,60 +244,6 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "toggle_widget hides a visible widget" do
-    register_home_widgets
-    dashboard = home_dashboard
-
-    post dash_kit.toggle_widget_dashboard_path(dashboard), params: { widget_key: "tasks" }
-
-    assert_includes dashboard.reload.hidden_widgets, "tasks"
-  end
-
-  test "toggle_widget turbo_stream replaces the settings modal" do
-    register_home_widgets
-    dashboard = home_dashboard
-
-    post dash_kit.toggle_widget_dashboard_path(dashboard), params: { widget_key: "tasks" }, as: :turbo_stream
-
-    assert_includes response.body, "dashboard-settings-modal"
-  end
-
-  test "settings modal uses the keystone modal backdrop target" do
-    register_home_widgets
-    dashboard = home_dashboard
-
-    post dash_kit.toggle_widget_dashboard_path(dashboard), params: { widget_key: "tasks" }, as: :turbo_stream
-
-    assert_includes response.body, %(data-modal-target="backdrop")
-  end
-
-  test "move_widget up swaps with the previous widget" do
-    register_home_widgets
-    dashboard = home_dashboard
-
-    post dash_kit.move_widget_dashboard_path(dashboard), params: { widget_key: "tasks", direction: "up" }
-
-    assert_equal %w[tasks on_deck goals], dashboard.reload.widget_order
-  end
-
-  test "reorder updates the widget order with valid keys" do
-    register_home_widgets
-    dashboard = home_dashboard
-
-    post dash_kit.reorder_dashboard_path(dashboard), params: { widget_order: %w[goals tasks on_deck] }
-
-    assert_equal %w[goals tasks on_deck], dashboard.reload.widget_order
-  end
-
-  test "reorder rejects invalid keys" do
-    register_home_widgets
-    dashboard = home_dashboard
-
-    post dash_kit.reorder_dashboard_path(dashboard), params: { widget_order: %w[goals fake_widget] }
-
-    assert_response :unprocessable_entity
-  end
-
   test "save_filters updates the filter state" do
     register_home_widgets
     dashboard = home_dashboard
@@ -335,25 +281,15 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     assert_match "last_7_days", response.body
   end
 
-  test "reorder is forbidden when the viewer cannot edit" do
-    register_home_widgets
-    dashboard = home_dashboard
-    DashKit.editable_by = ->(_dashboard, _viewer) { false }
-
-    post dash_kit.reorder_dashboard_path(dashboard), params: { widget_order: %w[goals tasks on_deck] }
-
-    assert_response :forbidden
-  end
-
   test "writes are not enforced when no viewer is configured" do
     register_home_widgets
     dashboard = home_dashboard
     DashKit.current_owner_method = nil
     DashKit.editable_by = ->(_dashboard, _viewer) { false }
 
-    post dash_kit.reorder_dashboard_path(dashboard), params: { widget_order: %w[goals tasks on_deck] }
+    post dash_kit.save_filters_dashboard_path(dashboard), params: { filter_key: "time_period", filter_value: "last_7_days" }
 
-    assert_equal %w[goals tasks on_deck], dashboard.reload.widget_order
+    assert_equal "last_7_days", dashboard.reload.filter_state["time_period"]
   end
 
   test "editable? receives the configured viewer rather than the owner" do
@@ -366,7 +302,7 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
       DashKit::ApplicationController.class_eval { def current_member_stub; "member-7"; end }
       DashKit.current_viewer_method = :current_member_stub
 
-      post dash_kit.reorder_dashboard_path(dashboard), params: { widget_order: %w[goals tasks on_deck] }
+      post dash_kit.save_filters_dashboard_path(dashboard), params: { filter_key: "time_period", filter_value: "last_7_days" }
 
       assert_equal "member-7", received
     ensure
@@ -520,16 +456,4 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "toggle_widget does not affect another owner's dashboard" do
-    register_home_widgets
-    other_owner = Account.create!(name: "Other")
-    theirs = DashKit::Dashboard.create!(
-      name: "Theirs", owner: other_owner, dashboard_type: "home",
-      widget_order: %w[on_deck tasks goals], hidden_widgets: []
-    )
-
-    post dash_kit.toggle_widget_dashboard_path(theirs), params: { widget_key: "tasks" }
-
-    assert_response :not_found
-  end
 end
