@@ -455,5 +455,4 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
       post dash_kit.destroy_definition_dashboard_path(theirs), params: { definition_id: definition.id }
     end
   end
-
 end
