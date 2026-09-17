@@ -103,7 +103,7 @@ module DashKit
 
     def render_widgets
       render turbo_stream: turbo_stream.replace(
-        "dashboard-widgets",
+        helpers.dash_kit_widgets_id(widget_dashboard),
         partial: "dash_kit/dashboards/widgets",
         locals: { config: widget_dashboard }
       )

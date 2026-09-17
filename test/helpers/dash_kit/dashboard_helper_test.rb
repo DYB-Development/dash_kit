@@ -163,6 +163,19 @@ module DashKit
       assert_match(/widget_definition_#{definition.id}/, drawn)
     end
 
+    def test_two_dashboards_on_one_page_are_drawn_apart_from_each_other
+      DashKit.configure do |config|
+        config.register(:page_home) { |d| d.widget :revenue, label: "Revenue", partial: "widgets/home/revenue", width: 6, height: 4 }
+      end
+      owner = Account.create!(name: "Two")
+      first = DashKit::Dashboard.create!(owner: owner, name: "Stats", dashboard_type: "page_home")
+      second = DashKit::Dashboard.create!(owner: owner, name: "Totals", dashboard_type: "page_home")
+
+      drawn = dash_kit_render_widgets(config: first) + dash_kit_render_widgets(config: second)
+
+      assert_equal 2, drawn.scan(/id="dashboard-widgets[^"]*"/).uniq.size
+    end
+
     def test_a_dashboard_a_viewer_may_edit_mounts_the_grid_with_its_layout
       DashKit.configure do |config|
         config.register(:grid_home) { |d| d.widget :revenue, label: "Revenue", partial: "widgets/home/revenue", width: 6, height: 4 }

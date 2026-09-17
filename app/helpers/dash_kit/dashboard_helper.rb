@@ -42,9 +42,13 @@ module DashKit
     def dash_kit_render_widgets(config:)
       return content_tag(:div, "", id: "dashboard-widgets") unless config
 
-      content_tag(:div, id: "dashboard-widgets") do
+      content_tag(:div, id: dash_kit_widgets_id(config)) do
         dash_kit_arrangeable?(config) ? dash_kit_widget_grid(config) : dash_kit_drawn_widgets(config)
       end
+    end
+
+    def dash_kit_widgets_id(config)
+      "dashboard-widgets-#{config.id}"
     end
 
     def dash_kit_arrangeable?(config)
