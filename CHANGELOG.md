@@ -12,6 +12,7 @@
 - A dashboard holds at most one widget of any one type.
 
 ### Removed
+- Ruby 3.2. The gem asks for Ruby 3.3 or later, which is what its browser tests need.
 - The window for reordering widgets by dragging rows, and the ways of moving a widget up, moving it down, hiding it and reordering the whole list. A dashboard is arranged on the dashboard itself.
 
 ### Upgrading
