@@ -1,3 +1,4 @@
+require "keystone_ui-blocks"
 require "dash_kit/version"
 require "dash_kit/widget_registry"
 require "dash_kit/renderer_registry"

@@ -23,8 +23,7 @@ class DashKit::Generators::InstallGeneratorTest < Rails::Generators::TestCase
       assert_match(/create_table :dash_kit_dashboards/, migration)
       assert_match(/t\.references :owner, polymorphic: true/, migration)
       assert_match(/t\.string :dashboard_type/, migration)
-      assert_match(/t\.jsonb :widget_order/, migration)
-      assert_match(/t\.jsonb :hidden_widgets/, migration)
+      assert_match(/t\.jsonb :blocks/, migration)
       assert_match(/t\.string :visibility/, migration)
     end
   end
@@ -48,16 +47,6 @@ class DashKit::Generators::InstallGeneratorTest < Rails::Generators::TestCase
     run_generator
     assert_file "config/routes.rb" do |content|
       assert_match(/mount DashKit::Engine/, content)
-    end
-  end
-
-  test "pins sortablejs in the importmap" do
-    File.write(File.join(destination_root, "config", "importmap.rb"), "# Pin npm packages\n")
-
-    run_generator
-
-    assert_file "config/importmap.rb" do |content|
-      assert_match(/pin "sortablejs"/, content)
     end
   end
 

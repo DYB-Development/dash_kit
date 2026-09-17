@@ -20,7 +20,7 @@ begin
     c.agent "install",
       description: "Use to set DashKit up in a host Rails app: add the gem, run the install generator, mount the engine, configure the initializer, wire the owner association, importmap, and Stimulus controllers.",
       tools: "Read, Edit, Write, Bash",
-      body: "You install DashKit into a host Rails app, following only the reference's installation steps. You add the gem, run the install generator, migrate, mount the engine, then complete the manual wiring: the polymorphic owner association, the sortablejs importmap pin, the Stimulus controller registration, and the initializer (parent_controller, current_owner_method, and registered dashboards/widgets). You set up a dashboard controller and view that scope to the current owner. You do not invent configuration the reference does not describe.",
+      body: "You install DashKit into a host Rails app, following only the reference's installation steps. You add the gem, run the install generator, migrate, mount the engine, then complete the manual wiring: the polymorphic owner association, the Stimulus controller registration, and the initializer (parent_controller, current_owner_method, and registered dashboards/widgets). You set up a dashboard controller and view that scope to the current owner. You do not invent configuration the reference does not describe.",
       knowledge: DashKit::Reference.content
 
     c.agent "develop",

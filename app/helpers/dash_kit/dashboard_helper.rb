@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
+require "ks_blocks/layout_helper"
+
 module DashKit
   module DashboardHelper
+    include KsBlocks::LayoutHelper
+
     def dash_kit_viewable?(config)
       DashKit.viewable?(config, dash_kit_current_viewer)
     end
@@ -34,17 +38,17 @@ module DashKit
     def dash_kit_render_widgets(config:)
       return content_tag(:div, "", id: "dashboard-widgets") unless config
 
-      content_tag(:div, id: "dashboard-widgets", class: "space-y-6") do
-        safe_join(
-          config.ordered_visible_widgets.filter_map do |widget_key|
-            widget_def = config.available_widgets[widget_key.to_sym]
-            next unless widget_def
-
-            dash_kit_widget_frame(widget_key, dashboard_id: config.id)
-          end +
-          config.widget_definitions.map { |definition| dash_kit_widget_definition_frame(definition) }
-        )
+      content_tag(:div, id: "dashboard-widgets") do
+        block_layout(config.blocks, kind: config.dashboard_type.to_sym) do |block|
+          dash_kit_block_frame(config, block)
+        end
       end
+    end
+
+    def dash_kit_block_frame(config, block)
+      return dash_kit_widget_frame(block["type"], dashboard_id: config.id) unless block["type"] == WidgetRegistry::BUILT_WIDGET.to_s
+
+      dash_kit_widget_definition_frame(config.widget_definitions.find(block.dig("content", "definition_id")))
     end
 
     def dash_kit_widget_frame(widget_key, dashboard_id: nil, &block)
@@ -77,18 +81,6 @@ module DashKit
             onchange: "this.form.requestSubmit()")
         ])
       end
-    end
-
-    def dash_kit_settings_modal(config:)
-      render partial: "dash_kit/dashboards/settings_modal", locals: { config: config }
-    end
-
-    def dash_kit_settings_button_attributes
-      {
-        type: "button",
-        class: "inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50",
-        data: { action: "click->modal#open" }
-      }
     end
 
     def dash_kit_loading_skeleton

@@ -141,40 +141,6 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
     assert_equal %i[on_deck], dashboard.available_widgets.keys
   end
 
-  test "ordered_visible_widgets excludes hidden widgets" do
-    register_home_widgets
-    dashboard = DashKit::Dashboard.new(
-      owner: @account, dashboard_type: "home",
-      widget_order: %w[on_deck tasks goals], hidden_widgets: %w[tasks]
-    )
-
-    assert_equal %w[on_deck goals], dashboard.ordered_visible_widgets
-  end
-
-  test "toggle_widget hides a visible widget and persists" do
-    register_home_widgets
-    dashboard = DashKit::Dashboard.create!(
-      name: "Home", owner: @account, dashboard_type: "home",
-      widget_order: %w[on_deck tasks goals], hidden_widgets: []
-    )
-
-    dashboard.toggle_widget(:tasks)
-
-    assert_includes dashboard.reload.hidden_widgets, "tasks"
-  end
-
-  test "move_widget_up swaps with the previous widget and persists" do
-    register_home_widgets
-    dashboard = DashKit::Dashboard.create!(
-      name: "Home", owner: @account, dashboard_type: "home",
-      widget_order: %w[on_deck tasks goals], hidden_widgets: []
-    )
-
-    dashboard.move_widget_up(:tasks)
-
-    assert_equal %w[tasks on_deck goals], dashboard.reload.widget_order
-  end
-
   test "update_filter merges into filter_state and persists" do
     register_home_widgets
     dashboard = DashKit::Dashboard.create!(
@@ -186,5 +152,27 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
     dashboard.update_filter(:time_period, "last_7_days")
 
     assert_equal "last_7_days", dashboard.reload.filter_state["time_period"]
+  end
+
+  def test_a_dashboard_keeps_a_block_added_to_its_layout
+    DashKit.configure do |config|
+      config.register(:layout_home) { |d| d.widget :revenue, label: "Revenue", partial: "widgets/home/revenue", width: 6, height: 4 }
+    end
+    dashboard = DashKit::Dashboard.create!(owner: @account, name: "Mine", dashboard_type: "layout_home")
+    revenue = KsBlocks.registry.block_types(kind: :layout_home).find { |type| type.key == :revenue }
+
+    dashboard.add_block(revenue, x: 0, y: 0)
+
+    assert_equal [ [ "revenue", 0, 0, 6, 4 ] ], dashboard.reload.blocks.map { |block| block.values_at("type", "x", "y", "w", "h") }
+  end
+  test "a dashboard refuses a second widget of the same type" do
+    DashKit.configure do |config|
+      config.register(:once_home) { |d| d.widget :revenue, label: "Revenue", partial: "widgets/home/revenue", width: 6, height: 4 }
+    end
+    dashboard = DashKit::Dashboard.create!(owner: @account, name: "Mine", dashboard_type: "once_home")
+    revenue = KsBlocks.registry.block_types(kind: :once_home).find { |type| type.key == :revenue }
+    dashboard.add_block(revenue, x: 0, y: 0)
+
+    assert_raises(KsBlocks::InvalidLayout) { dashboard.add_block(revenue, x: 6, y: 0) }
   end
 end

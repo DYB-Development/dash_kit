@@ -6,9 +6,6 @@ DashKit::Engine.routes.draw do
     member do
       post :select
       post :duplicate
-      post :toggle_widget
-      post :move_widget
-      post :reorder
       post :save_filters
       post :create_definition
       post :update_definition

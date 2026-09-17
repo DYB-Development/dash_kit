@@ -31,13 +31,6 @@ module DashKit
       IMPORTMAP_PATH = "config/importmap.rb"
       STIMULUS_INDEX_PATH = "app/javascript/controllers/index.js"
 
-      def pin_sortablejs
-        return unless host_file?(IMPORTMAP_PATH)
-        return if host_file_includes?(IMPORTMAP_PATH, 'pin "sortablejs"')
-
-        append_to_file IMPORTMAP_PATH, %(pin "sortablejs"\n)
-      end
-
       def register_dash_kit_controllers
         return unless host_file?(STIMULUS_INDEX_PATH)
         return if host_file_includes?(STIMULUS_INDEX_PATH, "registerDashKitControllers")
@@ -53,8 +46,8 @@ module DashKit
         say ""
         say "DashKit installed successfully!", :green
         say ""
-        say "Pinned sortablejs and registered DashKit's Stimulus controllers for you", :green
-        say "(where config/importmap.rb and app/javascript/controllers/index.js exist)."
+        say "Registered DashKit's Stimulus controllers for you", :green
+        say "(where app/javascript/controllers/index.js exists)."
         say ""
         say "Next steps:", :yellow
         say ""

@@ -7,6 +7,16 @@ class DashKit::WidgetRegistryTest < Minitest::Test
     @registry = DashKit::WidgetRegistry.new
   end
 
+  def test_a_registered_widget_is_a_block_type_carrying_the_sizes_it_renders_at
+    @registry.register(:sizes_home) do |d|
+      d.widget :revenue, label: "Revenue", partial: "widgets/home/revenue", width: 6, height: 4, narrow_width: 12, narrow_height: 2
+    end
+
+    block_type = KsBlocks.registry.block_types(kind: :sizes_home).find { |type| type.key == :revenue }
+
+    assert_equal [ 6, 4, 12, 2 ], [ block_type.width, block_type.height, block_type.narrow_width, block_type.narrow_height ]
+  end
+
   def test_register_dashboard_with_widgets
     @registry.register(:home) do |d|
       d.widget :on_deck, label: "On Deck", partial: "widgets/home/on_deck"
