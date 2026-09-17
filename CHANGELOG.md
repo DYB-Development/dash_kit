@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Fixed
+- Adding a widget from the block list, removing one, and reading a dashboard's layout back all work. The grid asked for these as it was built to, and nothing answered, so its Add and Remove buttons did nothing and a saved move never came back to the page.
+
 ## [2.0.0] - 2026-09-17
 
 ### Changed
