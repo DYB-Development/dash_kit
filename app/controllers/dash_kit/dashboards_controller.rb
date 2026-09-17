@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
+require "ks_blocks/layout_endpoints"
+
 module DashKit
   class DashboardsController < DashKit.parent_controller.constantize
+    include KsBlocks::LayoutEndpoints
+
     before_action :require_editable!, only: %i[toggle_widget move_widget reorder save_filters create_definition update_definition destroy_definition]
 
     def index
@@ -49,13 +53,6 @@ module DashKit
       else
         render :edit, status: :unprocessable_entity
       end
-    end
-
-    def place_blocks
-      widget_dashboard.place_blocks(params.require(:layout).map { |position| position.permit(:id, :x, :y, :w, :h).to_h }, version: params[:version])
-      head :no_content
-    rescue KsBlocks::InvalidLayout => refusal
-      render json: { error: refusal.message }, status: :unprocessable_entity
     end
 
     def save_filters
@@ -107,6 +104,10 @@ module DashKit
         partial: "dash_kit/dashboards/widgets",
         locals: { config: widget_dashboard }
       )
+    end
+
+    def block_layout_record
+      widget_dashboard
     end
 
     def dashboard_params

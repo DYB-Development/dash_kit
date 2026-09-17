@@ -43,4 +43,14 @@ class DashboardGridTest < ApplicationSystemTestCase
 
     assert_selector "[data-block] [data-block-handle]"
   end
+  test "a widget added from the block list appears on the dashboard" do
+    visit "/dashboards/#{@dashboard.id}"
+    find("[data-block]")
+    @dashboard.blocks.each { |block| @dashboard.remove_block(block["id"]) }
+    visit "/dashboards/#{@dashboard.id}"
+
+    within("[data-block-type='revenue']") { click_on "Add" }
+
+    assert_selector "[data-block]"
+  end
 end

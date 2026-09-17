@@ -22,5 +22,25 @@ module DashKit
 
       assert_equal [ 6, 2 ], @dashboard.reload.blocks.first.values_at("x", "y")
     end
+    test "a widget added from the grid is put on the dashboard" do
+      empty = Dashboard.create!(owner: @dashboard.owner, name: "Empty", dashboard_type: "moved_home")
+
+      post dash_kit.blocks_dashboard_path(empty), params: { type: "revenue" }, as: :json
+
+      assert_equal %w[revenue], empty.reload.blocks.map { |block| block["type"] }
+    end
+    test "a widget removed from the grid is taken off the dashboard" do
+      block = @dashboard.blocks.first
+
+      delete dash_kit.block_dashboard_path(@dashboard, block_id: block["id"]), as: :json
+
+      assert_empty @dashboard.reload.blocks
+    end
+
+    test "the grid can read the dashboard's layout back" do
+      get dash_kit.layout_dashboard_path(@dashboard), as: :json
+
+      assert_equal @dashboard.blocks.map { |block| block["id"] }, response.parsed_body["blocks"].map { |block| block["id"] }
+    end
   end
 end

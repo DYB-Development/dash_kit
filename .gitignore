@@ -8,3 +8,4 @@ test/dummy/storage/
 /node_modules/
 
 test/dummy/tmp/
+*.gem
