@@ -3,5 +3,8 @@
 Rails.application.routes.draw do
   mount DashKit::Engine => "/dash_kit"
 
+  resources :dashboards, only: :show
+  get "/elsewhere", to: "dashboards#elsewhere"
+
   root to: proc { [ 200, {}, [ "OK" ] ] }
 end

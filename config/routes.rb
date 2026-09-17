@@ -7,6 +7,7 @@ DashKit::Engine.routes.draw do
       post :select
       post :duplicate
       post :save_filters
+      patch "blocks", to: "dashboards#place_blocks", as: :blocks
       post :create_definition
       post :update_definition
       post :destroy_definition

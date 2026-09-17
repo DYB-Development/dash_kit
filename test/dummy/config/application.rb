@@ -3,6 +3,7 @@
 require_relative "boot"
 
 require "rails/all"
+require "propshaft"
 
 Bundler.require(*Rails.groups)
 require "turbo-rails"

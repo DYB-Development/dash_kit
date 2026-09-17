@@ -260,7 +260,7 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     post dash_kit.save_filters_dashboard_path(dashboard),
       params: { filter_key: "time_period", filter_value: "last_7_days" }, as: :turbo_stream
 
-    assert_match(/<turbo-stream action="replace" target="dashboard-widgets">/, response.body)
+    assert_match(/<turbo-stream action="replace" target="dashboard-widgets-\d+">/, response.body)
   end
 
   test "a saved filter is visible when a widget reloads" do
@@ -337,7 +337,7 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     post dash_kit.create_definition_dashboard_path(dashboard),
       params: { widget_definition: { source: "revenue", visualization: "line_chart" } }, as: :turbo_stream
 
-    assert_match(/<turbo-stream action="replace" target="dashboard-widgets">/, response.body)
+    assert_match(/<turbo-stream action="replace" target="dashboard-widgets-\d+">/, response.body)
   end
 
   test "create_definition renders the new definition in the refreshed widgets" do
@@ -380,7 +380,7 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     post dash_kit.update_definition_dashboard_path(dashboard),
       params: { definition_id: definition.id, widget_definition: { source: "expenses" } }, as: :turbo_stream
 
-    assert_match(/<turbo-stream action="replace" target="dashboard-widgets">/, response.body)
+    assert_match(/<turbo-stream action="replace" target="dashboard-widgets-\d+">/, response.body)
   end
 
   test "update_definition is forbidden when the viewer cannot edit" do
@@ -428,7 +428,7 @@ class DashKit::DashboardsControllerTest < ActionDispatch::IntegrationTest
     post dash_kit.destroy_definition_dashboard_path(dashboard),
       params: { definition_id: definition.id }, as: :turbo_stream
 
-    assert_match(/<turbo-stream action="replace" target="dashboard-widgets">/, response.body)
+    assert_match(/<turbo-stream action="replace" target="dashboard-widgets-\d+">/, response.body)
   end
 
   test "destroy_definition is forbidden when the viewer cannot edit" do

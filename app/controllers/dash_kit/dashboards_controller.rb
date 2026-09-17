@@ -51,6 +51,13 @@ module DashKit
       end
     end
 
+    def place_blocks
+      widget_dashboard.place_blocks(params.require(:layout).map { |position| position.permit(:id, :x, :y, :w, :h).to_h }, version: params[:version])
+      head :no_content
+    rescue KsBlocks::InvalidLayout => refusal
+      render json: { error: refusal.message }, status: :unprocessable_entity
+    end
+
     def save_filters
       widget_dashboard.update_filter(params[:filter_key], params[:filter_value])
       respond_to do |format|
@@ -96,7 +103,7 @@ module DashKit
 
     def render_widgets
       render turbo_stream: turbo_stream.replace(
-        "dashboard-widgets",
+        helpers.dash_kit_widgets_id(widget_dashboard),
         partial: "dash_kit/dashboards/widgets",
         locals: { config: widget_dashboard }
       )

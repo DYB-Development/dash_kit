@@ -7,8 +7,11 @@ gem "puma"
 gem "sqlite3"
 gem "minitest", "~> 5.0"
 gem "rake"
-gem "keystone_ui", github: "tylercschneider/keystone_ui"
 gem "the_local", github: "tylercschneider/the_local"
+
+gem "propshaft"
+gem "capybara"
+gem "selenium-webdriver"
 
 # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
 gem "rubocop-rails-omakase", require: false
