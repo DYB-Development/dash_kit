@@ -165,4 +165,14 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert_equal [ [ "revenue", 0, 0, 6, 4 ] ], dashboard.reload.blocks.map { |block| block.values_at("type", "x", "y", "w", "h") }
   end
+  test "a dashboard refuses a second widget of the same type" do
+    DashKit.configure do |config|
+      config.register(:once_home) { |d| d.widget :revenue, label: "Revenue", partial: "widgets/home/revenue", width: 6, height: 4 }
+    end
+    dashboard = DashKit::Dashboard.create!(owner: @account, name: "Mine", dashboard_type: "once_home")
+    revenue = KsBlocks.registry.block_types(kind: :once_home).find { |type| type.key == :revenue }
+    dashboard.add_block(revenue, x: 0, y: 0)
+
+    assert_raises(KsBlocks::InvalidLayout) { dashboard.add_block(revenue, x: 6, y: 0) }
+  end
 end

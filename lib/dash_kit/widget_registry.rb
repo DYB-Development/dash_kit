@@ -47,7 +47,8 @@ module DashKit
       widgets_for(dashboard_type).each do |key, widget|
         KsBlocks.block(key, name: widget[:label], kind: dashboard_type.to_sym,
                        width: widget.fetch(:width, FULL_WIDTH), height: widget.fetch(:height, ROWS),
-                       narrow_width: widget[:narrow_width], narrow_height: widget[:narrow_height])
+                       narrow_width: widget[:narrow_width], narrow_height: widget[:narrow_height],
+                       once: true, resizable: false)
       end
     end
   end
