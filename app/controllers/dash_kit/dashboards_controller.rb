@@ -95,7 +95,8 @@ module DashKit
     end
 
     def create_definition
-      widget_dashboard.widget_definitions.create(definition_params)
+      definition = widget_dashboard.widget_definitions.create(definition_params)
+      widget_dashboard.add_built_widget(definition) if definition.persisted?
       respond_to do |format|
         format.turbo_stream { render_widgets }
         format.html { redirect_back fallback_location: main_app.root_path }

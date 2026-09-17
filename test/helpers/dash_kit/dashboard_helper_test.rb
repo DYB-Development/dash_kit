@@ -68,10 +68,8 @@ module DashKit
     end
 
     test "dash_kit_render_widgets embeds the dashboard id in each widget frame src" do
-      dashboard = DashKit::Dashboard.create!(
-        name: "D", dashboard_type: "test_dashboard", owner: Account.create!(name: "Owner"),
-        widget_order: %w[stats], hidden_widgets: []
-      )
+      dashboard = DashKit::Dashboard.create!(name: "D", dashboard_type: "test_dashboard", owner: Account.create!(name: "Owner"))
+      dashboard.add_block(KsBlocks.registry.block_types(kind: :test_dashboard).find { |type| type.key == :stats })
 
       html = dash_kit_render_widgets(config: dashboard)
 
@@ -138,6 +136,7 @@ module DashKit
 
     test "dash_kit_render_widgets renders a built definition frame" do
       definition = @config.widget_definitions.create!(source: "revenue", visualization: "single_value")
+      @config.add_built_widget(definition)
 
       html = dash_kit_render_widgets(config: @config)
 
@@ -173,6 +172,31 @@ module DashKit
       assert_match %r{<option[^>]*value="single_value"}, html
     end
 
+    def test_a_dashboard_draws_each_widget_where_its_layout_puts_it
+      DashKit.configure do |config|
+        config.register(:drawn_home) { |d| d.widget :revenue, label: "Revenue", partial: "widgets/home/revenue", width: 6, height: 4 }
+      end
+      dashboard = DashKit::Dashboard.create!(owner: Account.create!(name: "Drawn"), name: "Mine", dashboard_type: "drawn_home")
+      dashboard.add_block(KsBlocks.registry.block_types(kind: :drawn_home).find { |type| type.key == :revenue }, x: 3, y: 1)
+
+      drawn = dash_kit_render_widgets(config: dashboard)
+
+      assert_match(/--ks-block-x: ?3; ?--ks-block-y: ?1; ?--ks-block-w: ?6; ?--ks-block-h: ?4/, drawn)
+    end
+
+    def test_a_widget_someone_built_is_drawn_where_its_block_puts_it
+      DashKit.configure do |config|
+        config.register(:built_home) { |d| d.widget :revenue, label: "Revenue", partial: "widgets/home/revenue", width: 6, height: 4 }
+      end
+      dashboard = DashKit::Dashboard.create!(owner: Account.create!(name: "Built"), name: "Mine", dashboard_type: "built_home")
+      definition = dashboard.widget_definitions.create!(source: "revenue", visualization: "single_value")
+      dashboard.add_built_widget(definition, x: 0, y: 2)
+
+      drawn = dash_kit_render_widgets(config: dashboard)
+
+      assert_match(/widget_definition_#{definition.id}/, drawn)
+    end
+
     test "dash_kit_widget_definition_frame lazily loads the definition path" do
       definition = @config.widget_definitions.create!(source: "revenue", visualization: "single_value")
 
@@ -181,4 +205,5 @@ module DashKit
       assert_match dash_kit.widget_definition_path(definition, dashboard_id: @config.id), html
     end
   end
+
 end

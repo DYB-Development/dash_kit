@@ -2,6 +2,10 @@
 
 module DashKit
   class WidgetRegistry
+    BUILT_WIDGET = :built_widget
+    FULL_WIDTH = 12
+    ROWS = 4
+
     def initialize
       @dashboards = {}
     end
@@ -38,9 +42,11 @@ module DashKit
     private
 
     def register_block_types(dashboard_type)
+      KsBlocks.block(BUILT_WIDGET, name: "Built widget", kind: dashboard_type.to_sym, width: FULL_WIDTH, height: ROWS, narrow_width: FULL_WIDTH, narrow_height: ROWS)
+
       widgets_for(dashboard_type).each do |key, widget|
         KsBlocks.block(key, name: widget[:label], kind: dashboard_type.to_sym,
-                       width: widget[:width], height: widget[:height],
+                       width: widget.fetch(:width, FULL_WIDTH), height: widget.fetch(:height, ROWS),
                        narrow_width: widget[:narrow_width], narrow_height: widget[:narrow_height])
       end
     end
