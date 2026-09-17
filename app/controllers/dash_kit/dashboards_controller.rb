@@ -51,6 +51,13 @@ module DashKit
       end
     end
 
+    def place_blocks
+      widget_dashboard.place_blocks(params.require(:layout).map { |position| position.permit(:id, :x, :y, :w, :h).to_h }, version: params[:version])
+      head :no_content
+    rescue KsBlocks::InvalidLayout => refusal
+      render json: { error: refusal.message }, status: :unprocessable_entity
+    end
+
     def save_filters
       widget_dashboard.update_filter(params[:filter_key], params[:filter_value])
       respond_to do |format|
