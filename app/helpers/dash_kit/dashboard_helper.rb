@@ -63,7 +63,7 @@ module DashKit
     end
 
     def dash_kit_form_token
-      controller.respond_to?(:form_authenticity_token) ? controller.send(:form_authenticity_token) : nil
+      controller.send(:form_authenticity_token) if controller.respond_to?(:form_authenticity_token, true)
     end
 
     def dash_kit_drawn_widgets(config)

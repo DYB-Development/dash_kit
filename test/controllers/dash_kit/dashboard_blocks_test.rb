@@ -42,5 +42,20 @@ module DashKit
 
       assert_equal @dashboard.blocks.map { |block| block["id"] }, response.parsed_body["blocks"].map { |block| block["id"] }
     end
+    test "someone who may not edit the dashboard is refused a move" do
+      DashKit.editable_by = ->(_dashboard, _viewer) { false }
+      DashKit::ApplicationController.class_eval { def dash_kit_watcher; "watcher"; end }
+      DashKit.current_viewer_method = :dash_kit_watcher
+      block = @dashboard.blocks.first
+
+      patch dash_kit.blocks_dashboard_path(@dashboard),
+        params: { layout: [ { id: block["id"], x: 6, y: 2, w: block["w"], h: block["h"] } ] }, as: :json
+
+      assert_response :forbidden
+    ensure
+      DashKit.current_viewer_method = nil
+      DashKit.editable_by = DashKit::OWNER_EQUALITY
+      DashKit::ApplicationController.send(:remove_method, :dash_kit_watcher)
+    end
   end
 end
