@@ -205,5 +205,4 @@ module DashKit
       assert_match dash_kit.widget_definition_path(definition, dashboard_id: @config.id), html
     end
   end
-
 end
