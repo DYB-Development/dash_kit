@@ -23,8 +23,7 @@ class DashKit::Generators::InstallGeneratorTest < Rails::Generators::TestCase
       assert_match(/create_table :dash_kit_dashboards/, migration)
       assert_match(/t\.references :owner, polymorphic: true/, migration)
       assert_match(/t\.string :dashboard_type/, migration)
-      assert_match(/t\.jsonb :widget_order/, migration)
-      assert_match(/t\.jsonb :hidden_widgets/, migration)
+      assert_match(/t\.jsonb :blocks/, migration)
       assert_match(/t\.string :visibility/, migration)
     end
   end

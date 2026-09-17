@@ -1,10 +1,15 @@
 # frozen_string_literal: true
 
+require "ks_blocks/layout"
+
 module DashKit
   class Dashboard < ApplicationRecord
     include WidgetManagement
+    include KsBlocks::Layout
 
     self.table_name = "dash_kit_dashboards"
+
+    block_layout :blocks, kind: :blocks
 
     VISIBILITIES = %w[private account].freeze
 

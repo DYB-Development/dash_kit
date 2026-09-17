@@ -24,6 +24,7 @@ ActiveRecord::Schema.define(version: 1) do
     t.bigint :account_id
     t.string :name
     t.string :dashboard_type, null: false
+    t.json :blocks, default: []
     t.json :widget_order, default: []
     t.json :hidden_widgets, default: []
     t.json :widget_settings, default: {}

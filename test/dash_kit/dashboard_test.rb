@@ -187,4 +187,16 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert_equal "last_7_days", dashboard.reload.filter_state["time_period"]
   end
+
+  def test_a_dashboard_keeps_a_block_added_to_its_layout
+    DashKit.configure do |config|
+      config.register(:layout_home) { |d| d.widget :revenue, label: "Revenue", partial: "widgets/home/revenue", width: 6, height: 4 }
+    end
+    dashboard = DashKit::Dashboard.create!(owner: @account, name: "Mine", dashboard_type: "layout_home")
+    revenue = KsBlocks.registry.block_types(kind: :layout_home).find { |type| type.key == :revenue }
+
+    dashboard.add_block(revenue, x: 0, y: 0)
+
+    assert_equal [ [ "revenue", 0, 0, 6, 4 ] ], dashboard.reload.blocks.map { |block| block.values_at("type", "x", "y", "w", "h") }
+  end
 end

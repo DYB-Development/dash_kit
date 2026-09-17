@@ -5,8 +5,7 @@ class CreateDashKitDashboards < ActiveRecord::Migration[<%= ActiveRecord::Migrat
       t.bigint :account_id
       t.string :name
       t.string :dashboard_type, null: false
-      t.jsonb :widget_order, default: []
-      t.jsonb :hidden_widgets, default: []
+      t.jsonb :blocks, default: []
       t.jsonb :widget_settings, default: {}
       t.jsonb :filter_state, default: {}
       t.string :visibility, null: false, default: "private"
