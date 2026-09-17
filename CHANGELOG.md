@@ -14,6 +14,8 @@
 - The window for reordering widgets by dragging rows, and the ways of moving a widget up, moving it down, hiding it and reordering the whole list. A dashboard is arranged on the dashboard itself.
 
 ### Upgrading
+- A host that drew its own list of widgets calls `dash_kit_render_widgets(config:)` instead: the ways of reading a dashboard's widget order, of asking whether a widget is hidden, and of drawing the settings window and its button are all gone.
+- A dashboard is a section of a host's page, not the page, and a page may carry more than one.
 - Dashboards are not migrated. A host sets its dashboards up again after upgrading: the columns holding the old order and the hidden list are gone, and the layout starts empty.
 - Give each registered widget type a `width` and `height`, and a `narrow_width` and `narrow_height` for phones. A type without them takes the full width.
 - Remove the `sortablejs` pin from the host's importmap, which DashKit no longer uses.
