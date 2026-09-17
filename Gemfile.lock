@@ -14,7 +14,7 @@ GIT
 PATH
   remote: .
   specs:
-    dash_kit (1.0.0)
+    dash_kit (2.0.0)
       keystone_ui (>= 0.4.1)
       keystone_ui-blocks (>= 0.2.0)
       rails (>= 7.1)
