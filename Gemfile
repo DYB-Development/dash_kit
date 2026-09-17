@@ -9,6 +9,10 @@ gem "minitest", "~> 5.0"
 gem "rake"
 gem "the_local", github: "tylercschneider/the_local"
 
+gem "propshaft"
+gem "capybara"
+gem "selenium-webdriver"
+
 # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
 gem "rubocop-rails-omakase", require: false
 
