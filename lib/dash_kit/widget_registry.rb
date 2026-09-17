@@ -42,7 +42,7 @@ module DashKit
     private
 
     def register_block_types(dashboard_type)
-      KsBlocks.block(BUILT_WIDGET, name: "Built widget", kind: dashboard_type.to_sym, width: FULL_WIDTH, height: ROWS, narrow_width: FULL_WIDTH, narrow_height: ROWS)
+      KsBlocks.block(BUILT_WIDGET, name: "Built widget", kind: dashboard_type.to_sym, width: FULL_WIDTH, height: ROWS, narrow_width: FULL_WIDTH, narrow_height: ROWS, resizable: false)
 
       widgets_for(dashboard_type).each do |key, widget|
         KsBlocks.block(key, name: widget[:label], kind: dashboard_type.to_sym,

@@ -175,4 +175,17 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert_raises(KsBlocks::InvalidLayout) { dashboard.add_block(revenue, x: 6, y: 0) }
   end
+  test "a widget someone built cannot be given a new size either" do
+    DashKit.configure do |config|
+      config.register(:sized_home) { |d| d.widget :revenue, label: "Revenue", partial: "widgets/home/revenue", width: 6, height: 4 }
+    end
+    dashboard = DashKit::Dashboard.create!(owner: @account, name: "Mine", dashboard_type: "sized_home")
+    definition = dashboard.widget_definitions.create!(source: "revenue", visualization: "single_value")
+    dashboard.add_built_widget(definition, x: 0, y: 0)
+    built = dashboard.blocks.first
+
+    assert_raises(KsBlocks::InvalidLayout) do
+      dashboard.place_blocks([ { "id" => built["id"], "x" => 0, "y" => 0, "w" => 3, "h" => 2 } ])
+    end
+  end
 end
