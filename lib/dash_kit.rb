@@ -69,4 +69,3 @@ module DashKit
 end
 
 require "dash_kit/engine" if defined?(Rails::Engine)
-require "dash_kit/the_local"

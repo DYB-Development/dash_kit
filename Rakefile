@@ -3,10 +3,9 @@ require "bundler/gem_tasks"
 require "rake/testtask"
 
 begin
-  require "dash_kit/the_local"
   require "the_local/rake"
 rescue LoadError
-  # the_local provides the_local:build/install tasks when present.
+  # the_local provides its authoring tasks when present.
 end
 
 Rake::TestTask.new(:test) do |t|
