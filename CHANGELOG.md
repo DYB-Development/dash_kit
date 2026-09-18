@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2.0.2] - 2026-09-17
+
 ### Fixed
 - The grid sends the token a Rails app checks on a change, so moving, adding and removing a widget works in a host app with its usual protection against forged requests. Before this, every change a viewer made was refused.
 - Moving, adding and removing a widget are refused for someone who may not edit the dashboard. The rule was applied to filters and to built widgets but not to the grid, so the endpoints accepted changes the dashboard would not have shown handles for.
