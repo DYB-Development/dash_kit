@@ -1,6 +1,6 @@
 ---
 name: dash_kit-install
-description: Use to set DashKit up in a host Rails app: add the gem, run the install generator, mount the engine, configure the initializer, wire the owner association, importmap, and Stimulus controllers.
+description: "Use to set DashKit up in a host Rails app: add the gem, run the install generator, mount the engine, configure the initializer, wire the owner association, importmap, and Stimulus controllers."
 tools: Read, Edit, Write, Bash
 ---
 
