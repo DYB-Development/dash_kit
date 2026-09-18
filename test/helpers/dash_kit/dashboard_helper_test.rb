@@ -176,6 +176,19 @@ module DashKit
       assert_equal 2, drawn.scan(/id="dashboard-widgets[^"]*"/).uniq.size
     end
 
+    def test_the_grid_is_given_a_token_to_send_its_changes_with
+      DashKit.configure do |config|
+        config.register(:token_home) { |d| d.widget :revenue, label: "Revenue", partial: "widgets/home/revenue", width: 6, height: 4 }
+      end
+      editor = Account.create!(name: "Editor")
+      configure_viewer(editor)
+      dashboard = DashKit::Dashboard.create!(owner: editor, name: "Mine", dashboard_type: "token_home")
+
+      drawn = dash_kit_render_widgets(config: dashboard)
+
+      refute_match(/&quot;token&quot;:null/, drawn)
+    end
+
     def test_a_dashboard_a_viewer_may_edit_mounts_the_grid_with_its_layout
       DashKit.configure do |config|
         config.register(:grid_home) { |d| d.widget :revenue, label: "Revenue", partial: "widgets/home/revenue", width: 6, height: 4 }

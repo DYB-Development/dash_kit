@@ -16,5 +16,6 @@ module Dummy
     config.eager_load = false
     config.root = File.expand_path("..", __dir__)
     config.secret_key_base = "test_secret_key_base_for_dash_kit_gem"
+    config.action_controller.allow_forgery_protection = false
   end
 end

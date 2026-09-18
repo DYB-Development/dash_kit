@@ -6,7 +6,7 @@ module DashKit
   class DashboardsController < DashKit.parent_controller.constantize
     include KsBlocks::LayoutEndpoints
 
-    before_action :require_editable!, only: %i[toggle_widget move_widget reorder save_filters create_definition update_definition destroy_definition]
+    before_action :require_editable!, only: %i[add_block place_blocks remove_block save_filters create_definition update_definition destroy_definition]
 
     def index
       @dashboards = dashboard_scope.all
