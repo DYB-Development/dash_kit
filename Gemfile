@@ -7,7 +7,7 @@ gem "puma"
 gem "sqlite3"
 gem "minitest", "~> 5.0"
 gem "rake"
-gem "the_local", github: "tylercschneider/the_local"
+gem "the_local", "~> 0.4.1"
 
 gem "propshaft"
 gem "capybara"

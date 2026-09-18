@@ -1,6 +1,6 @@
 ---
 name: dash_kit-develop
-description: Use to build dashboards and widgets with DashKit in a host app: register widget types, write widget partials, render and lazy-load them, and persist per-owner visibility, order, and filters correctly.
+description: "Use to build dashboards and widgets with DashKit in a host app: register widget types, write widget partials, render and lazy-load them, and persist per-owner visibility, order, and filters correctly."
 tools: Read, Edit, Write, Bash
 ---
 
