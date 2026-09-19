@@ -18,39 +18,62 @@ class DashboardGridTest < ApplicationSystemTestCase
     DashKit.current_viewer_method = nil
   end
 
-  test "a dashboard draws its widgets on a grid a viewer can take hold of" do
+  test "a dashboard draws its widgets and nothing to take hold of" do
     visit "/dashboards/#{@dashboard.id}"
 
-    assert_selector "[data-block] [data-block-handle]"
+    assert_selector "[data-block]"
+    assert_no_selector "[data-block-handle]"
   end
-  test "a widget moved by its handle stays where it was put after a reload" do
-    visit "/dashboards/#{@dashboard.id}"
-    widget = find("[data-block]")
-    handle = widget.find("[data-block-handle]")
 
-    page.driver.browser.action.click_and_hold(handle.native).move_by(300, 0).move_by(300, 0).release.perform
+  test "a dashboard a viewer may edit offers one way in" do
+    visit "/dashboards/#{@dashboard.id}"
+
+    assert_selector "[data-start-editing]"
+  end
+
+  test "a widget dragged in edit mode stays where it was put after a reload" do
+    visit "/dashboards/#{@dashboard.id}"
+    find("[data-start-editing]").click
+    widget = find("[data-block]")
+
+    page.driver.browser.action.click_and_hold(widget.native).move_by(300, 0).move_by(300, 0).release.perform
     Timeout.timeout(Capybara.default_max_wait_time) { sleep 0.05 until @dashboard.reload.blocks.first["x"].positive? }
     refresh
 
     assert_operator @dashboard.reload.blocks.first["x"], :>, 0
   end
+
   test "the grid is drawn again when the dashboard is reached a second time" do
     visit "/dashboards/#{@dashboard.id}"
-    find("[data-block-handle]")
+    find("[data-block]")
 
     click_on "Elsewhere"
     click_on "Back"
 
-    assert_selector "[data-block] [data-block-handle]"
+    assert_selector "[data-block]"
   end
+
   test "a widget added from the block list appears on the dashboard" do
     visit "/dashboards/#{@dashboard.id}"
     find("[data-block]")
     @dashboard.blocks.each { |block| @dashboard.remove_block(block["id"]) }
     visit "/dashboards/#{@dashboard.id}"
+    find("[data-start-editing]").click
+    find("[data-open-blocks]").click
 
     within("[data-block-type='revenue']") { click_on "Add" }
 
     assert_selector "[data-block]"
+  end
+
+  test "a widget dropped on the remove target is taken off the dashboard" do
+    visit "/dashboards/#{@dashboard.id}"
+    find("[data-start-editing]").click
+    widget = find("[data-block]")
+    target = find("[data-remove-target]")
+
+    page.driver.browser.action.click_and_hold(widget.native).move_to(target.native).move_to(target.native).release.perform
+
+    assert_no_selector "[data-block]"
   end
 end
