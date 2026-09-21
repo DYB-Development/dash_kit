@@ -75,7 +75,8 @@ module DashKit
     def dash_kit_block_frame(config, block)
       return dash_kit_widget_frame(block["type"], dashboard_id: config.id) unless block["type"] == WidgetRegistry::BUILT_WIDGET.to_s
 
-      dash_kit_widget_definition_frame(config.widget_definitions.find(block.dig("content", "definition_id")))
+      definition = config.widget_definitions.find_by(id: block.dig("content", "definition_id"))
+      definition ? dash_kit_widget_definition_frame(definition) : dash_kit_loading_skeleton
     end
 
     def dash_kit_widget_frame(widget_key, dashboard_id: nil, &block)
