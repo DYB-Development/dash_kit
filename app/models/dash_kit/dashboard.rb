@@ -17,6 +17,7 @@ module DashKit
 
     def layout_data
       KsBlocks.layout_data(roomed_blocks, kind: block_layout_kind, grid: declared_grid, offered: block_layout_offered)
+        .merge(version: KsBlocks.version_of(blocks))
     end
 
     def add_built_widget(definition, x: nil, y: nil)

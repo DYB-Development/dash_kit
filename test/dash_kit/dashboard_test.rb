@@ -247,4 +247,20 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert_equal [ 5, 7 ], dashboard.reload.layout_data[:blocks].first.values_at("w", "h")
   end
+
+  test "the version a dashboard is drawn with names the layout it has stored" do
+    DashKit.reset_registry!
+    DashKit.configure do |config|
+      config.register(:restated) { |d| d.widget :on_deck, label: "On Deck", partial: "widgets/home/on_deck", width: 3, height: 4 }
+    end
+    dashboard = DashKit::Dashboard.create!(owner: @account, name: "Restated", dashboard_type: "restated")
+    dashboard.add_block(KsBlocks.registry.block_types(kind: :restated).find { |type| type.key == :on_deck }, x: 0, y: 0)
+
+    DashKit.reset_registry!
+    DashKit.configure do |config|
+      config.register(:restated) { |d| d.widget :on_deck, label: "On Deck", partial: "widgets/home/on_deck", width: 3, height: 1 }
+    end
+
+    assert_equal KsBlocks.version_of(dashboard.reload.blocks), dashboard.layout_data[:version]
+  end
 end
