@@ -213,4 +213,11 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert_equal [ 12, 3 ], [ wide.layout_data[:grid][:columns], tight.layout_data[:grid][:columns] ]
   end
+
+  test "a dashboard type that declares no grid is drawn at twelve columns of sixty pixel rows with a ten pixel gap" do
+    register_home_widgets
+    dashboard = DashKit::Dashboard.create!(owner: @account, name: "Home", dashboard_type: "home")
+
+    assert_equal [ 12, 60, 10 ], dashboard.layout_data[:grid].values_at(:columns, :row_height, :gap)
+  end
 end
