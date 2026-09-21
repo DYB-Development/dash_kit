@@ -201,4 +201,16 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert_equal 4, dashboard.layout_data[:grid][:narrow_columns]
   end
+
+  test "two dashboard types are each drawn at the grid they declared" do
+    DashKit.reset_registry!
+    DashKit.configure do |config|
+      config.register(:wide_type) { |d| d.grid(columns: 12); d.widget :on_deck, label: "On Deck", partial: "widgets/home/on_deck" }
+      config.register(:tight_type) { |d| d.grid(columns: 3); d.widget :on_deck, label: "On Deck", partial: "widgets/home/on_deck" }
+    end
+    wide = DashKit::Dashboard.create!(owner: @account, name: "Wide", dashboard_type: "wide_type")
+    tight = DashKit::Dashboard.create!(owner: @account, name: "Tight", dashboard_type: "tight_type")
+
+    assert_equal [ 12, 3 ], [ wide.layout_data[:grid][:columns], tight.layout_data[:grid][:columns] ]
+  end
 end
