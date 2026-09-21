@@ -236,4 +236,15 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert_equal 2, dashboard.reload.layout_data[:blocks].first["h"]
   end
+
+  test "a block whose type is no longer registered is drawn at the size saved with it" do
+    DashKit.reset_registry!
+    DashKit.configure do |config|
+      config.register(:retiring) { |d| d.widget :on_deck, label: "On Deck", partial: "widgets/home/on_deck", width: 3, height: 4 }
+    end
+    dashboard = DashKit::Dashboard.create!(owner: @account, name: "Retiring", dashboard_type: "retiring")
+    dashboard.update!(blocks: [ { "id" => "gone", "type" => "retired_widget", "x" => 0, "y" => 0, "w" => 5, "h" => 7 } ])
+
+    assert_equal [ 5, 7 ], dashboard.reload.layout_data[:blocks].first.values_at("w", "h")
+  end
 end
