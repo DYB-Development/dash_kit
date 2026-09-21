@@ -25,6 +25,13 @@ class DashboardGridTest < ApplicationSystemTestCase
     assert_no_selector "[data-block-handle]"
   end
 
+  test "a dashboard draws no card around the grid, so a widget's own card is the only one" do
+    visit "/dashboards/#{@dashboard.id}"
+
+    assert_selector "[data-block-grid]"
+    assert_no_selector ".ks-panel [data-block-grid]"
+  end
+
   test "a dashboard a viewer may edit offers one way in" do
     visit "/dashboards/#{@dashboard.id}"
 

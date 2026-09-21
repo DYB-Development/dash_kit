@@ -8,6 +8,7 @@
 - The list of widgets to add opens as a modal from a control beside Done, and closes once a widget is chosen.
 - A widget resizes from its corner alone.
 - Holding a widget for half a second starts edit mode, and that hold does not press whatever is under the finger.
+- A dashboard draws no card around its grid, so the card a host renders for a widget is the only card on the screen. Before this the grid sat in a card of its own and every widget's card sat inside it.
 
 ## [2.0.2] - 2026-09-17
 
