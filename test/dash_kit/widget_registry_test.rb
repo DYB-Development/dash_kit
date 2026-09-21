@@ -17,6 +17,15 @@ class DashKit::WidgetRegistryTest < Minitest::Test
     assert_equal [ 6, 4, 12, 2 ], [ block_type.width, block_type.height, block_type.narrow_width, block_type.narrow_height ]
   end
 
+  def test_a_dashboard_type_is_answered_with_the_grid_it_declared
+    @registry.register(:sized_home) do |d|
+      d.grid columns: 6, row_height: 40, gap: 4
+      d.widget :revenue, label: "Revenue", partial: "widgets/home/revenue"
+    end
+
+    assert_equal({ columns: 6, row_height: 40, gap: 4 }, @registry.grid_for(:sized_home))
+  end
+
   def test_register_dashboard_with_widgets
     @registry.register(:home) do |d|
       d.widget :on_deck, label: "On Deck", partial: "widgets/home/on_deck"
