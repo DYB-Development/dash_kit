@@ -261,6 +261,28 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
       config.register(:restated) { |d| d.widget :on_deck, label: "On Deck", partial: "widgets/home/on_deck", width: 3, height: 1 }
     end
 
-    assert_equal KsBlocks.version_of(dashboard.reload.blocks), dashboard.layout_data[:version]
+    drawn = dashboard.layout_data
+
+    assert_equal KsBlocks.version_of(dashboard.reload.blocks), drawn[:version]
+  end
+
+  test "a move is accepted at the sizes the dashboard is drawn at, not the sizes it once stored" do
+    DashKit.reset_registry!
+    DashKit.configure do |config|
+      config.register(:shrunk) do |d|
+        d.widget :one, label: "One", partial: "widgets/home/on_deck", width: 3, height: 1
+        d.widget :two, label: "Two", partial: "widgets/home/tasks", width: 3, height: 1
+      end
+    end
+    dashboard = DashKit::Dashboard.create!(owner: @account, name: "Shrunk", dashboard_type: "shrunk")
+    dashboard.update!(blocks: [
+      { "id" => "a", "type" => "one", "x" => 0, "y" => 0, "w" => 3, "h" => 4 },
+      { "id" => "b", "type" => "two", "x" => 0, "y" => 4, "w" => 3, "h" => 4 }
+    ])
+    dashboard.layout_data
+
+    dashboard.place_blocks([ { "id" => "a", "x" => 0, "y" => 1 }, { "id" => "b", "x" => 0, "y" => 0 } ])
+
+    assert_equal [ [ "b", 0 ], [ "a", 1 ] ], dashboard.reload.blocks.sort_by { |block| block["y"] }.map { |block| block.values_at("id", "y") }
   end
 end

@@ -16,8 +16,13 @@ module DashKit
     end
 
     def layout_data
-      KsBlocks.layout_data(roomed_blocks, kind: block_layout_kind, grid: declared_grid, offered: block_layout_offered)
-        .merge(version: KsBlocks.version_of(blocks))
+      room_blocks_from_their_types!
+      KsBlocks.layout_data(blocks, kind: block_layout_kind, grid: declared_grid, offered: block_layout_offered)
+    end
+
+    def room_blocks_from_their_types!
+      roomed = roomed_blocks
+      update!(blocks: roomed) unless roomed == blocks
     end
 
     def add_built_widget(definition, x: nil, y: nil)
