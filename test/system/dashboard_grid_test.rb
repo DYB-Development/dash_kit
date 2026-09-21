@@ -32,6 +32,15 @@ class DashboardGridTest < ApplicationSystemTestCase
     assert_no_selector ".ks-panel [data-block-grid]"
   end
 
+  test "a widget held starts edit mode" do
+    visit "/dashboards/#{@dashboard.id}"
+    widget = find("[data-block]")
+
+    page.driver.browser.action.click_and_hold(widget.native).pause(duration: 1).release.perform
+
+    assert_selector "[data-stop-editing]"
+  end
+
   test "a dashboard a viewer may edit offers one way in" do
     visit "/dashboards/#{@dashboard.id}"
 
