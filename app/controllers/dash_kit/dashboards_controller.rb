@@ -8,6 +8,10 @@ module DashKit
 
     before_action :require_editable!, only: %i[add_block place_blocks remove_block save_filters create_definition update_definition destroy_definition]
 
+    def block_content(block)
+      helpers.dash_kit_block_frame(block_layout_record, block)
+    end
+
     def place_blocks
       block_layout_record.place_blocks(placed_order, version: params[:version])
       head :no_content

@@ -51,6 +51,20 @@ module DashKit
 
       assert_equal @dashboard.blocks.map { |block| block["id"] }, response.parsed_body["blocks"].map { |block| block["id"] }
     end
+    test "the layout carries each block's markup, so a block added after the page loaded draws its card" do
+      get dash_kit.layout_dashboard_path(@dashboard), as: :json
+
+      assert_includes response.parsed_body["contents"].fetch(@dashboard.blocks.first["id"]), "turbo-frame"
+    end
+
+    test "a built widget block with no definition yet does not break the layout" do
+      @dashboard.update!(blocks: @dashboard.blocks + [ { "id" => "fresh", "type" => "built_widget", "x" => 0, "y" => 4, "w" => 12, "h" => 4 } ])
+
+      get dash_kit.layout_dashboard_path(@dashboard), as: :json
+
+      assert_response :success
+    end
+
     test "someone who may not edit the dashboard is refused a move" do
       DashKit.editable_by = ->(_dashboard, _viewer) { false }
       DashKit::ApplicationController.class_eval { def dash_kit_watcher; "watcher"; end }
