@@ -188,4 +188,17 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert_equal [ 6, 40, 4 ], dashboard.layout_data[:grid].values_at(:columns, :row_height, :gap)
   end
+
+  test "a dashboard is drawn at the narrow column count its dashboard type declared" do
+    DashKit.reset_registry!
+    DashKit.configure do |config|
+      config.register(:narrowed) do |d|
+        d.grid columns: 12, narrow_columns: 4
+        d.widget :on_deck, label: "On Deck", partial: "widgets/home/on_deck"
+      end
+    end
+    dashboard = DashKit::Dashboard.create!(owner: @account, name: "Narrowed", dashboard_type: "narrowed")
+
+    assert_equal 4, dashboard.layout_data[:grid][:narrow_columns]
+  end
 end
