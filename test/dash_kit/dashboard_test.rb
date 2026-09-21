@@ -175,4 +175,49 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert_raises(KsBlocks::InvalidLayout) { dashboard.add_block(revenue, x: 6, y: 0) }
   end
+
+  test "a dashboard is drawn at the grid its dashboard type declared" do
+    DashKit.reset_registry!
+    DashKit.configure do |config|
+      config.register(:sized) do |d|
+        d.grid columns: 6, row_height: 40, gap: 4
+        d.widget :on_deck, label: "On Deck", partial: "widgets/home/on_deck"
+      end
+    end
+    dashboard = DashKit::Dashboard.create!(owner: @account, name: "Sized", dashboard_type: "sized")
+
+    assert_equal [ 6, 40, 4 ], dashboard.layout_data[:grid].values_at(:columns, :row_height, :gap)
+  end
+
+  test "a dashboard is drawn at the narrow column count its dashboard type declared" do
+    DashKit.reset_registry!
+    DashKit.configure do |config|
+      config.register(:narrowed) do |d|
+        d.grid columns: 12, narrow_columns: 4
+        d.widget :on_deck, label: "On Deck", partial: "widgets/home/on_deck"
+      end
+    end
+    dashboard = DashKit::Dashboard.create!(owner: @account, name: "Narrowed", dashboard_type: "narrowed")
+
+    assert_equal 4, dashboard.layout_data[:grid][:narrow_columns]
+  end
+
+  test "two dashboard types are each drawn at the grid they declared" do
+    DashKit.reset_registry!
+    DashKit.configure do |config|
+      config.register(:wide_type) { |d| d.grid(columns: 12); d.widget :on_deck, label: "On Deck", partial: "widgets/home/on_deck" }
+      config.register(:tight_type) { |d| d.grid(columns: 3); d.widget :on_deck, label: "On Deck", partial: "widgets/home/on_deck" }
+    end
+    wide = DashKit::Dashboard.create!(owner: @account, name: "Wide", dashboard_type: "wide_type")
+    tight = DashKit::Dashboard.create!(owner: @account, name: "Tight", dashboard_type: "tight_type")
+
+    assert_equal [ 12, 3 ], [ wide.layout_data[:grid][:columns], tight.layout_data[:grid][:columns] ]
+  end
+
+  test "a dashboard type that declares no grid is drawn at twelve columns of sixty pixel rows with a ten pixel gap" do
+    register_home_widgets
+    dashboard = DashKit::Dashboard.create!(owner: @account, name: "Home", dashboard_type: "home")
+
+    assert_equal [ 12, 60, 10 ], dashboard.layout_data[:grid].values_at(:columns, :row_height, :gap)
+  end
 end

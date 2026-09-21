@@ -8,12 +8,14 @@ module DashKit
 
     def initialize
       @dashboards = {}
+      @grids = {}
     end
 
     def register(dashboard_type, &block)
       builder = DashboardBuilder.new
       block.call(builder)
       @dashboards[dashboard_type.to_sym] = builder.widgets.freeze
+      @grids[dashboard_type.to_sym] = builder.grid_shape.freeze
       register_block_types(dashboard_type)
     end
 
@@ -39,6 +41,10 @@ module DashKit
       @dashboards.keys
     end
 
+    def grid_for(dashboard_type)
+      @grids.fetch(dashboard_type.to_sym, {})
+    end
+
     private
 
     def register_block_types(dashboard_type)
@@ -54,11 +60,16 @@ module DashKit
   end
 
   class DashboardBuilder
-    attr_reader :widgets
+    attr_reader :widgets, :grid_shape
 
     def initialize
       @widgets = {}
+      @grid_shape = {}
       @position = 0
+    end
+
+    def grid(**shape)
+      @grid_shape = shape
     end
 
     def widget(key, label:, partial:, **options)
