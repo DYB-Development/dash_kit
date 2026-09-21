@@ -8,6 +8,11 @@ module DashKit
 
     before_action :require_editable!, only: %i[add_block place_blocks remove_block save_filters create_definition update_definition destroy_definition]
 
+    def place_blocks
+      block_layout_record.place_blocks(placed_order, version: params[:version])
+      head :no_content
+    end
+
     def index
       @dashboards = dashboard_scope.all
     end
@@ -104,6 +109,10 @@ module DashKit
         partial: "dash_kit/dashboards/widgets",
         locals: { config: widget_dashboard }
       )
+    end
+
+    def placed_order
+      params.require(:layout).map { |position| position.permit(:id, :x, :y).to_h }
     end
 
     def block_layout_record
