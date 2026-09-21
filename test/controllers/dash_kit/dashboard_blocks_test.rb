@@ -22,6 +22,15 @@ module DashKit
 
       assert_equal [ 6, 2 ], @dashboard.reload.blocks.first.values_at("x", "y")
     end
+    test "a move sends no size, so a block keeps the size stored with it" do
+      block = @dashboard.blocks.first
+
+      patch dash_kit.blocks_dashboard_path(@dashboard),
+        params: { layout: [ { id: block["id"], x: 6, y: 2, w: 6, h: 2 } ] }, as: :json
+
+      assert_equal [ 6, 2, 6, 4 ], @dashboard.reload.blocks.first.values_at("x", "y", "w", "h")
+    end
+
     test "a widget added from the grid is put on the dashboard" do
       empty = Dashboard.create!(owner: @dashboard.owner, name: "Empty", dashboard_type: "moved_home")
 

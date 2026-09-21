@@ -16,7 +16,7 @@ module DashKit
     end
 
     def layout_data
-      KsBlocks.layout_data(blocks, kind: block_layout_kind, grid: declared_grid, offered: block_layout_offered)
+      KsBlocks.layout_data(roomed_blocks, kind: block_layout_kind, grid: declared_grid, offered: block_layout_offered)
     end
 
     def add_built_widget(definition, x: nil, y: nil)
@@ -55,6 +55,15 @@ module DashKit
     end
 
     private
+
+    def roomed_blocks
+      rooms = block_layout_types.index_by { |block_type| block_type.key.to_s }
+
+      blocks.map do |block|
+        room = rooms[block["type"]]
+        room ? block.merge("w" => room.width, "h" => room.height) : block
+      end
+    end
 
     def declared_grid
       declared = DashKit.registry.grid_for(dashboard_type)
