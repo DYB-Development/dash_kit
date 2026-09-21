@@ -175,4 +175,17 @@ class DashKit::DashboardTest < ActiveSupport::TestCase
 
     assert_raises(KsBlocks::InvalidLayout) { dashboard.add_block(revenue, x: 6, y: 0) }
   end
+
+  test "a dashboard is drawn at the grid its dashboard type declared" do
+    DashKit.reset_registry!
+    DashKit.configure do |config|
+      config.register(:sized) do |d|
+        d.grid columns: 6, row_height: 40, gap: 4
+        d.widget :on_deck, label: "On Deck", partial: "widgets/home/on_deck"
+      end
+    end
+    dashboard = DashKit::Dashboard.create!(owner: @account, name: "Sized", dashboard_type: "sized")
+
+    assert_equal [ 6, 40, 4 ], dashboard.layout_data[:grid].values_at(:columns, :row_height, :gap)
+  end
 end

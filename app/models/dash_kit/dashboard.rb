@@ -15,6 +15,10 @@ module DashKit
       dashboard_type.to_sym
     end
 
+    def layout_data
+      KsBlocks.layout_data(blocks, kind: block_layout_kind, grid: declared_grid, offered: block_layout_offered)
+    end
+
     def add_built_widget(definition, x: nil, y: nil)
       built = KsBlocks.registry.block_types(kind: block_layout_kind).find { |type| type.key == WidgetRegistry::BUILT_WIDGET }
       add_block(built, x: x, y: y)
@@ -48,6 +52,23 @@ module DashKit
       copy.active = false
       copy.save!
       copy
+    end
+
+    private
+
+    def declared_grid
+      declared = DashKit.registry.grid_for(dashboard_type)
+      columns = declared.fetch(:columns, KsBlocks::Grid::COLUMNS)
+      row_height = declared.fetch(:row_height, KsBlocks::Grid::ROW_HEIGHT)
+      gap = declared.fetch(:gap, KsBlocks::Grid::GAP)
+
+      {
+        columns: columns, row_height: row_height, gap: gap,
+        narrow_columns: declared[:narrow_columns] || columns,
+        narrow_row_height: declared[:narrow_row_height] || row_height,
+        narrow_gap: declared[:narrow_gap] || gap,
+        narrow_below: declared.fetch(:narrow_below, KsBlocks::Grid::NARROW_BELOW)
+      }
     end
   end
 end
