@@ -2,11 +2,17 @@
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-09-30
+
+### Added
+- A dashboard type can declare its grid when it is registered, with its number of columns, its row height and its gap, and each dashboard is drawn at the grid its type declared. A type that declares none gets the grid it had before.
+
 ### Fixed
 - Holding a widget to start editing a dashboard works, rather than edit mode starting from a press that was let go early.
 - A panel a widget opens, such as the note behind a stat card's information button, is drawn over the widgets beside it rather than under them.
 
 ### Changed
+- A widget takes its size from its type each time the dashboard is drawn, and a saved layout keeps where each widget sits and not its size.
 - A dashboard shows its widgets and nothing else until a person asks to edit it. The list of widgets to add, the way to remove one, and resizing all wait behind edit mode, which starts off.
 - A widget being edited drags from any point on it, where it used to drag by a handle it carried. A widget is removed by being dropped on a target, where it used to carry a Remove button.
 - The list of widgets to add opens as a modal from a control beside Done, and closes once a widget is chosen.
