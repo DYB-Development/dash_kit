@@ -10,6 +10,10 @@ class SetupfileTest < ActiveSupport::TestCase
     assert_equal "bundle exec rake test", check_of(:test_suite)
   end
 
+  test "the setup file requires the Symphony rules and scribes to be installed for Claude Code" do
+    assert_includes requirements.map(&:key), :symphony
+  end
+
   private
 
   def check_of(key)

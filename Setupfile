@@ -1,3 +1,8 @@
 requirement :test_suite, group: :repo_setup,
   purpose: "The test suite passes on this machine",
   check: "bundle exec rake test"
+
+requirement :symphony, group: :claude_tooling,
+  purpose: "The Symphony rules and scribes are installed for Claude Code",
+  check: %(test -L "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/rules" || grep -q '"symphony@' "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/settings.json"),
+  instruction: "Clone https://github.com/tylercschneider/symphony and run its install.sh."
