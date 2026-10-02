@@ -1,3 +1,10 @@
+GIT
+  remote: https://github.com/DYB-Development/dev_onboarder.git
+  revision: 39131d3f492527196fdf650363432a05a64d787b
+  tag: v0.6.0
+  specs:
+    dev_onboarder (0.6.0)
+
 PATH
   remote: .
   specs:
@@ -332,6 +339,7 @@ PLATFORMS
 DEPENDENCIES
   capybara
   dash_kit!
+  dev_onboarder!
   minitest (~> 5.0)
   propshaft
   puma

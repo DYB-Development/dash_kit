@@ -168,3 +168,16 @@ end
 ## Design Philosophy
 
 DashKit avoids data semantics by design. It treats datasets as opaque structures that can be rendered consistently, allowing teams to replace or evolve backends without rewriting dashboards. This deliberate decoupling keeps DashKit focused, composable, and stable over time.
+
+## Setting up to work on DashKit
+
+After cloning, install the bundle and run the setup command:
+
+```
+bundle install
+bundle exec dev_onboarder
+```
+
+It runs the test suite and checks the Claude Code tooling the repo expects, and records what it found
+in `.dev_onboarder.json`, which git ignores. `bundle exec dev_onboarder status` lists what the repo
+requires now that it did not at your last run. The requirements are declared in `Setupfile`.
