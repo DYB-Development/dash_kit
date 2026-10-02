@@ -14,6 +14,10 @@ class SetupfileTest < ActiveSupport::TestCase
     assert_includes requirements.map(&:key), :symphony
   end
 
+  test "the setup file installs the Claude subagents the bundle provides" do
+    assert_equal "bundle exec the_local install", check_of(:locals)
+  end
+
   private
 
   def check_of(key)

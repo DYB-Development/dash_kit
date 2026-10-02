@@ -6,3 +6,7 @@ requirement :symphony, group: :claude_tooling,
   purpose: "The Symphony rules and scribes are installed for Claude Code",
   check: %(test -L "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/rules" || grep -q '"symphony@' "${CLAUDE_CONFIG_DIR:-$HOME/.claude}/settings.json"),
   instruction: "Clone https://github.com/tylercschneider/symphony and run its install.sh."
+
+requirement :locals, group: :claude_tooling,
+  purpose: "The Claude subagents the bundle provides are installed",
+  check: "bundle exec the_local install"
