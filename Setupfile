@@ -1,0 +1,3 @@
+requirement :test_suite, group: :repo_setup,
+  purpose: "The test suite passes on this machine",
+  check: "bundle exec rake test"

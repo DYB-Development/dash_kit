@@ -1,0 +1,22 @@
+# frozen_string_literal: true
+
+require "test_helper"
+require "dev_onboarder/requirements"
+
+class SetupfileTest < ActiveSupport::TestCase
+  ROOT = File.expand_path("..", __dir__)
+
+  test "the setup file requires the test suite to pass" do
+    assert_equal "bundle exec rake test", check_of(:test_suite)
+  end
+
+  private
+
+  def check_of(key)
+    requirements.find { |requirement| requirement.key == key }&.check
+  end
+
+  def requirements
+    DevOnboarder::Requirements.load(File.join(ROOT, "Setupfile"))
+  end
+end
