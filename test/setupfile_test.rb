@@ -18,6 +18,10 @@ class SetupfileTest < ActiveSupport::TestCase
     assert_equal "bundle exec the_local install", check_of(:locals)
   end
 
+  test "git ignores a developer\x27s setup record" do
+    assert system("git", "check-ignore", "--quiet", ".dev_onboarder.json", chdir: ROOT)
+  end
+
   private
 
   def check_of(key)

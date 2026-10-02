@@ -9,3 +9,6 @@ test/dummy/storage/
 
 test/dummy/tmp/
 *.gem
+
+# Each developer's setup record, written by the setup command.
+/.dev_onboarder.json
