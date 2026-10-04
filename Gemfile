@@ -20,4 +20,4 @@ gem "rubocop-rails-omakase", require: false
 # gem "debug", ">= 1.0.0"
 
 # One setup command that checks and fixes what a developer needs [https://github.com/DYB-Development/dev_onboarder]
-gem "dev_onboarder", github: "DYB-Development/dev_onboarder", tag: "v0.6.0", require: false
+gem "dev_onboarder", github: "DYB-Development/dev_onboarder", tag: "v0.8.0", require: false
