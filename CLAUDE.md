@@ -65,6 +65,7 @@ This project has installed expert subagents. Before doing work yourself,
 check whether a local owns it and delegate — never work from memory on
 something a local covers:
 
+- repo setup — the Setupfile that declares what a repo needs, and the command a new developer runs to check and fix it → dev_onboarder-* agents
 - resident Claude Code experts — authoring a gem's locals and installing them into a host → the_local-* agents
 
 See each agent's description for specifics.
