@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/DYB-Development/dev_onboarder.git
-  revision: 39131d3f492527196fdf650363432a05a64d787b
-  tag: v0.6.0
+  revision: 1ca5534d3aa03c54f70ad98f34e27135812bb753
+  tag: v0.8.0
   specs:
-    dev_onboarder (0.6.0)
+    dev_onboarder (0.8.0)
 
 PATH
   remote: .
