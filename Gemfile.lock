@@ -1,10 +1,3 @@
-GIT
-  remote: https://github.com/DYB-Development/dev_onboarder.git
-  revision: 1ca5534d3aa03c54f70ad98f34e27135812bb753
-  tag: v0.8.0
-  specs:
-    dev_onboarder (0.8.0)
-
 PATH
   remote: .
   specs:
@@ -110,6 +103,7 @@ GEM
     connection_pool (3.0.2)
     crass (1.0.7)
     date (3.5.1)
+    dev_onboarder (0.9.1)
     drb (2.2.3)
     erb (6.0.7)
     erubi (1.13.1)
@@ -339,7 +333,7 @@ PLATFORMS
 DEPENDENCIES
   capybara
   dash_kit!
-  dev_onboarder!
+  dev_onboarder (~> 0.9)
   minitest (~> 5.0)
   propshaft
   puma
