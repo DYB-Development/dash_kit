@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-10-20
+
 ### Added
 - A host can pass a block when it draws a dashboard, and each shown widget is drawn from that block inside the page, in the order and with the visibility the dashboard saved, rather than loading through a request of its own.
 
