@@ -39,11 +39,11 @@ module DashKit
       config.available_widgets.dig(widget_key.to_sym, :label) || widget_key.to_s.humanize
     end
 
-    def dash_kit_render_widgets(config:)
+    def dash_kit_render_widgets(config:, &draw)
       return content_tag(:div, "", id: "dashboard-widgets") unless config
 
       content_tag(:div, id: dash_kit_widgets_id(config)) do
-        dash_kit_arrangeable?(config) ? dash_kit_widget_grid(config) : dash_kit_drawn_widgets(config)
+        dash_kit_arrangeable?(config) ? dash_kit_widget_grid(config, &draw) : dash_kit_drawn_widgets(config, &draw)
       end
     end
 
@@ -55,10 +55,10 @@ module DashKit
       DashKit.editable?(config, dash_kit_current_viewer)
     end
 
-    def dash_kit_widget_grid(config)
+    def dash_kit_widget_grid(config, &draw)
       safe_join([
         react_ui("dash_kit/dashboard-grid", config.layout_data.merge(base: dash_kit.dashboard_path(config), token: dash_kit_form_token)),
-        block_contents(config.blocks) { |block| dash_kit_block_frame(config, block) }
+        block_contents(config.blocks) { |block| dash_kit_block_frame(config, block, &draw) }
       ])
     end
 
@@ -66,14 +66,16 @@ module DashKit
       controller.send(:form_authenticity_token) if controller.respond_to?(:form_authenticity_token, true)
     end
 
-    def dash_kit_drawn_widgets(config)
+    def dash_kit_drawn_widgets(config, &draw)
       block_layout(config.blocks, kind: config.dashboard_type.to_sym) do |block|
-        dash_kit_block_frame(config, block)
+        dash_kit_block_frame(config, block, &draw)
       end
     end
 
-    def dash_kit_block_frame(config, block)
-      return dash_kit_widget_frame(block["type"], dashboard_id: config.id) unless block["type"] == WidgetRegistry::BUILT_WIDGET.to_s
+    def dash_kit_block_frame(config, block, &draw)
+      unless block["type"] == WidgetRegistry::BUILT_WIDGET.to_s
+        return draw ? capture(block["type"], &draw) : dash_kit_widget_frame(block["type"], dashboard_id: config.id)
+      end
 
       definition = config.widget_definitions.find_by(id: block.dig("content", "definition_id"))
       definition ? dash_kit_widget_definition_frame(definition) : dash_kit_loading_skeleton

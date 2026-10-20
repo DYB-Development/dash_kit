@@ -12,8 +12,9 @@ coupling the UI to any specific data backend.
 - A widget registry: dashboard types map to the widgets available on them.
 - A persistence layer for user preferences (which widgets show, in what order,
   with which filters) via an ActiveRecord `Dashboard` model.
-- A rendering layer that lazy-loads each widget through a Turbo Frame and
-  refreshes on configuration change.
+- A rendering layer that lazy-loads each widget through a Turbo Frame, or hands
+  each widget to a block the host passes so the host draws it inside the page,
+  and refreshes on configuration change.
 
 A dashboard renders two kinds of widget side by side:
 
@@ -81,16 +82,19 @@ The layers, all under the `DashKit` namespace:
   `dash_kit_available_sources`, `dash_kit_visualizations`, and
   `dash_kit_widget_definition_frame(definition)`. `dash_kit_render_widgets`
   renders the registered widgets in order, then appends one lazy Turbo Frame per
-  `widget_definition`.
+  `widget_definition`. Given a block, it calls the block with each shown
+  registered widget's key and draws what the block returns in that widget's
+  place, inside the page's own request and with no Turbo Frame.
 
 ### Data flow
 
 UI events -> dashboard update -> Turbo refresh -> widgets re-render via
-lazy-loaded Turbo Frames. A widget is never rendered inline; it loads through a
+lazy-loaded Turbo Frames. Without a block, a widget loads through a
 `<turbo-frame loading="lazy">` pointing at the widget's own route. The frame
 carries its dashboard's id, so the widget partial is handed the dashboard's
 `filter_state` to render against (DashKit passes the blob; the host interprets
-it).
+it). With a block, DashKit decides only which widgets show and where, and the
+host draws each one from data it has already loaded for the page.
 
 Built widgets follow the same flow. Each `widget_definition` lazy-loads through
 its own `<turbo-frame>` at `/widget_definitions/:id`;
@@ -255,7 +259,7 @@ The following manual steps remain:
   display order.
 - **Supply the data yourself.** A widget's partial is responsible for fetching
   and rendering its own data; DashKit only renders the partial inside a lazy
-  Turbo Frame. Keep partials self-contained around the owner DashKit scopes to.
+  Turbo Frame, or calls the host's block with the widget's key. Keep partials self-contained around the owner DashKit scopes to.
   This holds for registered widgets and for built-widget renderer partials
   alike — both receive `filter_state` and read it to shape their own request.
 - **Register a renderer for every visualization the builder offers.** A built
@@ -274,9 +278,10 @@ The following manual steps remain:
   `WidgetManagement` methods (`toggle_widget`, `move_widget_up`,
   `move_widget_down`, `update_filter`) or the engine routes; do not write
   `widget_order` / `hidden_widgets` / `filter_state` directly.
-- **Let widgets lazy-load.** Render through `dash_kit_render_widgets` /
-  `dash_kit_widget_frame` so each widget loads in its own Turbo Frame; do not
-  inline widget bodies.
+- **Draw widgets through `dash_kit_render_widgets`.** Without a block, each
+  widget loads in its own Turbo Frame. Pass a block when the page already holds
+  the widgets' data, so every widget is drawn in the page's own request rather
+  than one request per widget.
 - **Mobile-first, Tailwind, dark mode.** The shipped UI is styled with Tailwind
   and supports dark mode; host styling should match. The primary surface is
   often a native webview.
