@@ -121,6 +121,15 @@ module DashKit
       assert_match "animate-pulse", html
     end
 
+    test "dash_kit_render_widgets draws a widget from the host's block inside the page" do
+      dashboard = DashKit::Dashboard.create!(name: "D", dashboard_type: "test_dashboard", owner: Account.create!(name: "Owner"))
+      dashboard.add_block(KsBlocks.registry.block_types(kind: :test_dashboard).find { |type| type.key == :stats })
+
+      html = dash_kit_render_widgets(config: dashboard) { |widget_key| content_tag(:p, "Drawn #{widget_key}") }
+
+      assert_match "<p>Drawn stats</p>", html
+    end
+
     test "dash_kit_render_widgets renders a built definition frame" do
       definition = @config.widget_definitions.create!(source: "revenue", visualization: "single_value")
       @config.add_built_widget(definition)
